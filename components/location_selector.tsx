@@ -20,11 +20,6 @@ interface GeoNamesCountry {
   countryCode: string
 }
 
-interface GeoNamesCity {
-  geonameId: number
-  name: string
-}
-
 interface GeoNamesResponse<T> {
   geonames?: T[]
   status?: {
@@ -142,7 +137,7 @@ export function LocationSelector({
       }
     }
     fetchCountries()
-  }, [])
+  }, [language])
 
   useEffect(() => {
     if (!selectedCountry || !GEONAMES_USER) {
@@ -150,26 +145,38 @@ export function LocationSelector({
       return
     }
 
+    const currentCountryName = countries.find(c => c.code === selectedCountry)?.name
+
     const fetchCities = async () => {
       setLoadingCities(true)
       try {
         const res = await fetch(
-          `https://secure.geonames.org/searchJSON?username=${GEONAMES_USER}&country=${selectedCountry}&featureClass=P&orderby=population&maxRows=1000`
+          `https://secure.geonames.org/searchJSON?username=${GEONAMES_USER}&country=${selectedCountry}&featureClass=P&maxRows=500&orderby=population`
         )
-        const data: GeoNamesResponse<GeoNamesCity> = await res.json()
+        const data: GeoNamesResponse<any> = await res.json()
+        
         if (Array.isArray(data.geonames)) {
+          const processedCities = data.geonames
+            .filter((c: any) => {
+              const nameLower = c.name.toLowerCase()
+              const countryLower = currentCountryName?.toLowerCase()
+              if (countryLower && (nameLower === countryLower || nameLower.includes("republic of") || nameLower.includes("kingdom of"))) {
+                return false
+              }
+              return true
+            })
+            .map((c: any) => ({
+              id: String(c.geonameId),
+              name: c.name,
+              countryCode: selectedCountry,
+            }))
+
           const uniqueCities = Array.from(
             new Map(
-              data.geonames.map((c) => [
-                c.geonameId,
-                {
-                  id: String(c.geonameId),
-                  name: c.name,
-                  countryCode: selectedCountry,
-                },
-              ])
+              processedCities.map((c) => [c.id, c])
             ).values()
           ).sort((a, b) => a.name.localeCompare(b.name))
+          
           setCities(uniqueCities)
         }
       } catch (err) {
@@ -179,7 +186,7 @@ export function LocationSelector({
       }
     }
     fetchCities()
-  }, [selectedCountry])
+  }, [selectedCountry, countries])
 
   const filteredCountries = countries.filter(c =>
     c.name.toLowerCase().includes(countrySearch.toLowerCase())
@@ -193,7 +200,7 @@ export function LocationSelector({
 
   return (
     <div className="flex flex-col-reverse lg:flex-row gap-3 w-full z-1000">
-      <div className="relative w-full lg:w-[280px]" ref={countryRef}>
+      <div className="relative w-full" ref={countryRef}>
         <div className="relative group">
           <input
             type="text"
@@ -208,7 +215,13 @@ export function LocationSelector({
             disabled={disabled || loadingCountries}
           />
           <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 cursor-pointer" onClick={(e) => {
+            e.stopPropagation()
+            if (!disabled && !loadingCountries) {
+              setIsCountryOpen(!isCountryOpen)
+              if (!isCountryOpen) setCountrySearch("")
+            }
+          }}>
             {loadingCountries ? (
               <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
             ) : (
@@ -239,7 +252,7 @@ export function LocationSelector({
               </div>
             ) : (
               <div className="p-6 text-center">
-                <p className="text-sm text-slate-400 font-medium">No countries found</p>
+                <p className="text-sm text-slate-400 font-medium">{t.noCountriesFound}</p>
               </div>
             )}
           </div>
@@ -247,7 +260,7 @@ export function LocationSelector({
       </div>
 
       {/* City Selector */}
-      <div className="relative w-full lg:w-[280px]" ref={cityRef}>
+      <div className="relative w-full" ref={cityRef}>
         <Tooltip
           content={t.selectCountryFirst}
           visible={showTooltip && !selectedCountry}
@@ -271,7 +284,13 @@ export function LocationSelector({
               disabled={disabled || !selectedCountry || loadingCities}
             />
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
+            <div className={`absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 ${selectedCountry ? "cursor-pointer" : "cursor-not-allowed"}`} onClick={(e) => {
+              e.stopPropagation()
+              if (!disabled && selectedCountry && !loadingCities) {
+                setIsCityOpen(!isCityOpen)
+                if (!isCityOpen) setCitySearch("")
+              }
+            }}>
               {loadingCities ? (
                 <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
               ) : (
@@ -302,7 +321,7 @@ export function LocationSelector({
               </div>
             ) : (
               <div className="p-2 py-1.5 text-center">
-                <p className="text-sm text-slate-400 font-medium">No cities found</p>
+                <p className="text-sm text-slate-400 font-medium">{t.noCitiesFound}</p>
               </div>
             )}
           </div>

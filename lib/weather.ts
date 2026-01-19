@@ -38,7 +38,7 @@ const weatherTranslations: Record<string, Record<string, string>> = {
         "Sand": "砂",
         "Ash": "灰",
         "Squall": "スコール",
-        "Tornado": "竜巻",
+        "Tornado": "竜巻き",
     },
     "hi": {
         "Clear": "साफ",
@@ -59,6 +59,33 @@ const weatherTranslations: Record<string, Record<string, string>> = {
     }
 };
 
+const cityTranslations: Record<string, Record<string, string>> = {
+    "ja": {
+        "Tokyo": "東京",
+        "Kyoto": "京都",
+        "Osaka": "大阪",
+        "Okinawa": "沖縄",
+        "Sapporo": "札幌",
+        "Paris": "パリ",
+        "London": "ロンドン",
+        "New York": "ニューヨーク",
+        "Dubai": "ドバイ",
+        "Mumbai": "ムンバイ",
+    },
+    "hi": {
+        "Tokyo": "टोक्यो",
+        "Kyoto": "क्योटो",
+        "Osaka": "ओसाका",
+        "Okinawa": "ओकिनावा",
+        "Sapporo": "सप्पोरो",
+        "Paris": "पेरिस",
+        "London": "लंदन",
+        "New York": "न्यूयॉर्क",
+        "Dubai": "दुबई",
+        "Mumbai": "मुंबई",
+    }
+};
+
 function mapLanguageCode(lang: string): string {
     if (lang.startsWith("ja")) return "ja";
     if (lang.startsWith("hi")) return "hi";
@@ -67,6 +94,10 @@ function mapLanguageCode(lang: string): string {
 
 function translateWeatherMain(main: string, langCode: string): string {
     return weatherTranslations[langCode]?.[main] || main;
+}
+
+function translateCityName(city: string, langCode: string): string {
+    return cityTranslations[langCode]?.[city] || city;
 }
 
 export function getVisibilityLevel(visibilityMeters: number, language: string = "en-US"): string {
@@ -129,7 +160,7 @@ export async function fetchWeatherData(city: string, language: string = "en-US")
                 clouds: weatherData.clouds?.all,
                 visibility: weatherData.visibility,
                 uvi: weatherData.uvi || null,
-                city: weatherData.name,
+                city: translateCityName(weatherData.name, langCode),
                 country: weatherData.sys?.country,
                 sunrise: weatherData.sys?.sunrise,
                 sunset: weatherData.sys?.sunset,

@@ -42,6 +42,7 @@ export const i18n = {
             visibilityGood: "良好",
             visibilityModerate: "普通",
             visibilityPoor: "悪い",
+            weatherTitle: "の天気",
         },
         chatMessage: {
             temp: "気温",
@@ -55,6 +56,11 @@ export const i18n = {
             placeholderNoCity: "都市を選択して、質問をしてください（例：何を着たらいい？）",
             placeholderWithCity: "質問してください（例：おすすめの食事は？）",
             send: "送信",
+            showLocations: "場所を表示",
+            showKeyboard: "キーボードを表示",
+            places: "場所",
+            stop: "停止",
+            listening: "収音中...",
         },
         citySelector: {
             selectCountry: "国を選択",
@@ -65,11 +71,31 @@ export const i18n = {
             noResults: "結果が見つかりません",
             country: "国",
             city: "都市",
-            changeCityViaUI: "都市を変更するには、左下の地域選択ツールを使用してください。",
+            noCountriesFound: "国が見つかりません",
+            noCitiesFound: "都市が見つかりません",
+            changeCityViaUI: "ホーム画面から都市を変更してください。",
             selectCountryFirst: "先に国を選択してください",
             selectCityFirst: "先に都市を選択してください。",
             selectCityTooltip: "まず都市を選択してください",
-            selectCityAIWarning: "お手伝いする前に、左下のセレクターから都市を選択していただけますか？天気を踏まえたアドバイスを差し上げたいので！",
+            selectCityAIWarning: "ホーム画面から都市を変更してください。",
+        },
+        famousPlaces: {
+            title: "人気の場所",
+            loading: "読み込み中...",
+            show: "おすすめを表示",
+            hide: "おすすめを非表示",
+            places: {
+                "Tokyo": "東京",
+                "Kyoto": "京都",
+                "Osaka": "大阪",
+                "Okinawa": "沖縄",
+                "Sapporo": "札幌",
+                "Paris": "パリ",
+                "London": "ロンドン",
+                "New York": "ニューヨーク",
+                "Dubai": "ドバイ",
+                "Mumbai": "ムンバイ"
+            }
         }
     },
     "en-US": {
@@ -113,6 +139,7 @@ export const i18n = {
             visibilityGood: "Good",
             visibilityModerate: "Moderate",
             visibilityPoor: "Poor",
+            weatherTitle: "Weather",
         },
         chatMessage: {
             temp: "Temp",
@@ -126,6 +153,11 @@ export const i18n = {
             placeholderNoCity: "Select a city to start asking questions (e.g., what to wear?)",
             placeholderWithCity: "Ask a question (e.g., any travel tips for today?)",
             send: "Send",
+            showLocations: "Show Locations",
+            showKeyboard: "Show Keyboard",
+            places: "Places",
+            stop: "Stop",
+            listening: "Listening...",
         },
         citySelector: {
             selectCountry: "Select Country",
@@ -136,11 +168,31 @@ export const i18n = {
             noResults: "No results found",
             country: "Country",
             city: "City",
-            changeCityViaUI: "Please use the location selector at the bottom left to change the city.",
+            noCountriesFound: "No countries found",
+            noCitiesFound: "No cities found",
+            changeCityViaUI: "Simply change cities from the home page",
             selectCountryFirst: "Select a country first",
             selectCityFirst: "Please select a city first to proceed.",
             selectCityTooltip: "Select a city first",
-            selectCityAIWarning: "Before I can help, could you please select a city from the selector at the bottom left? I want to make sure my advice fits the local weather! I need data to provide accurate recommendations.",
+            selectCityAIWarning: "Simply change cities from the home page",
+        },
+        famousPlaces: {
+            title: "Famous Places",
+            loading: "Loading...",
+            show: "Show Suggestions",
+            hide: "Hide Suggestions",
+            places: {
+                "Tokyo": "Tokyo",
+                "Kyoto": "Kyoto",
+                "Osaka": "Osaka",
+                "Okinawa": "Okinawa",
+                "Sapporo": "Sapporo",
+                "Paris": "Paris",
+                "London": "London",
+                "New York": "New York",
+                "Dubai": "Dubai",
+                "Mumbai": "Mumbai"
+            }
         }
     },
     "hi-IN": {
@@ -184,6 +236,7 @@ export const i18n = {
             visibilityGood: "अच्छा",
             visibilityModerate: "मध्यम",
             visibilityPoor: "खराब",
+            weatherTitle: "का मौसम",
         },
         chatMessage: {
             temp: "तापमान",
@@ -197,6 +250,11 @@ export const i18n = {
             placeholderNoCity: "सवाल पूछना शुरू करने के लिए शहर चुनें (जैसे, क्या पहनना है?)",
             placeholderWithCity: "एक सवाल पूछें (जैसे, आज के लिए यात्रा सुझाव?)",
             send: "भेजें",
+            showLocations: "स्थान दिखाएं",
+            showKeyboard: "कीबोर्ड दिखाएं",
+            places: "स्थान",
+            stop: "रुकें",
+            listening: "सुन रहे हैं...",
         },
         citySelector: {
             selectCountry: "देश चुनें",
@@ -207,11 +265,31 @@ export const i18n = {
             noResults: "कोई परिणाम नहीं मिला",
             country: "देश",
             city: "शहर",
-            changeCityViaUI: "शहर बदलने के लिए कृपया नीचे बाईं ओर स्थित स्थान चयनकर्ता का उपयोग करें।",
+            noCountriesFound: "कोई देश नहीं मिला",
+            noCitiesFound: "कोई शहर नहीं मिला",
+            changeCityViaUI: "कृपया होम पेज से शहर बदलें",
             selectCountryFirst: "पहले देश चुनें",
             selectCityFirst: "आगे बढ़ने के लिए कृपया पहले एक शहर चुनें।",
             selectCityTooltip: "पहले एक शहर चुनें",
-            selectCityAIWarning: "इससे पहले कि मैं मदद करूँ, क्या आप कृपया नीचे बाईं ओर स्थित चयनकर्ता से एक शहर चुन सकते हैं? मैं यह सुनिश्चित करना चाहता हूँ कि मेरी सलाह स्थानीय मौसम के अनुरूप हो!",
+            selectCityAIWarning: "कृपया होम पेज से शहर बदलें",
+        },
+        famousPlaces: {
+            title: "प्रसिद्ध स्थान",
+            loading: "लोड हो रहा है...",
+            show: "सुझाव दिखाएं",
+            hide: "सुझाव छिपाएं",
+            places: {
+                "Tokyo": "टोक्यो",
+                "Kyoto": "क्योटो",
+                "Osaka": "ओसाका",
+                "Okinawa": "ओकिनावा",
+                "Sapporo": "सप्पोरो",
+                "Paris": "पेरिस",
+                "London": "लंदन",
+                "New York": "न्यूयॉर्क",
+                "Dubai": "दुबई",
+                "Mumbai": "मुंबई"
+            }
         }
     }
 }

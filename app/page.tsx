@@ -9,6 +9,7 @@ import { LocationSelector } from "@/components/location_selector"
 import { i18n, type Language } from "@/lib/i18n"
 import { WeatherDisplay } from "@/components/weather_display"
 import { ChatInput } from "@/components/chat_input"
+import { FamousPlaces } from "@/components/famous_places"
 
 interface Message {
   id: string
@@ -67,6 +68,7 @@ export default function Home() {
   const [chatInput, setChatInput] = useState("")
   const [weatherOpen, setWeatherOpen] = useState(false)
   const [showLocations, setShowLocations] = useState(false)
+  const [showFamous, setShowFamous] = useState(true)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const labels = i18n[language].home
@@ -196,13 +198,24 @@ export default function Home() {
       })
       const data = await res.json()
       setCurrentWeather(data)
-      setWeatherOpen(true)
+      // Only auto-open weather on larger screens
+      if (window.innerWidth >= 1024) {
+        setWeatherOpen(true)
+      } else {
+        setWeatherOpen(false)
+      }
       if (!started) setStarted(true)
     } catch {
       setError("Failed to fetch weather")
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleFamousPlaceSelect = async (city: string, countryCode: string) => {
+    setSelectedCountry(countryCode)
+    setSelectedCity(city)
+    await handleLocationSelect(city)
   }
 
   useEffect(() => {
@@ -220,7 +233,7 @@ export default function Home() {
       />
 
       {currentWeather && currentWeather.current && (
-        <div className="lg:hidden border-b border-border bg-muted/20">
+        <div className="lg:hidden border-b border-border bg-muted/20 relative">
           <button
             onClick={() => setWeatherOpen((v) => !v)}
             className="w-full flex items-center justify-between px-4 py-3 font-semibold"
@@ -230,7 +243,7 @@ export default function Home() {
           </button>
 
           {weatherOpen && (
-            <div className="relative z-0 px-4 pb-4 animate-in slide-in-from-top-2 overflow-y-auto max-h-[50vh] no-scrollbar">
+            <div className="absolute top-full left-1 right-1 z-[100] px-3 py-3 animate-in slide-in-from-top-2 overflow-y-auto max-h-[60vh] no-scrollbar bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-x border-b border-border shadow-[0_20px_50px_rgba(0,0,0,0.15)] rounded-b-2xl">
               <WeatherDisplay
                 weatherData={currentWeather}
                 language={language}
@@ -243,7 +256,7 @@ export default function Home() {
 
       <div className="flex-1 flex overflow-hidden min-h-0">
         <div className="flex-1 flex flex-col overflow-hidden border-r border-border/50 min-h-0">
-          <div className="flex-1 overflow-y-auto px-4 scroll-smooth">
+          <div className={`flex-1 ${started ? "overflow-y-auto" : "overflow-hidden"} px-4 scroll-smooth`}>
             {!started && messages.length === 0 ? (
               <div className="min-h-full flex flex-col items-center justify-center py-12">
                 <div className="max-w-2xl w-full space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -280,8 +293,16 @@ export default function Home() {
           </div>
 
           <div className="relative z-50 border-t border-slate-200 dark:border-slate-800 p-4 bg-white dark:bg-slate-900 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.05)]">
+            {showFamous && (
+              <div className="max-w-7xl mx-auto w-full md:w-[95%] lg:w-[90%] mb-2 animate-in slide-in-from-bottom-2 duration-300">
+                <FamousPlaces
+                  language={language}
+                  onSelect={handleFamousPlaceSelect}
+                />
+              </div>
+            )}
             <div className="flex flex-col-reverse lg:flex-row-reverse gap-3 max-w-7xl mx-auto w-full md:w-[95%] lg:w-[90%]">
-              <div className="flex-1 min-w-0 w-full">
+              <div className="flex-1 min-w-0 w-full lg:flex-[3]">
                 <ChatInput
                   value={chatInput}
                   onChange={setChatInput}
@@ -293,10 +314,12 @@ export default function Home() {
                   currentCity={currentWeather?.current?.city || selectedCity}
                   showLocations={showLocations}
                   onToggleLocations={() => setShowLocations(!showLocations)}
+                  showFamous={showFamous}
+                  onToggleFamous={() => setShowFamous(!showFamous)}
                 />
               </div>
 
-              <div className={`w-full lg:w-auto ${showLocations ? "block" : "hidden lg:block"} animate-in fade-in slide-in-from-bottom-2 duration-300`}>
+              <div className={`w-full lg:w-auto lg:flex-[1] lg:max-w-[280px] ${showLocations ? "block" : "hidden lg:block"} animate-in fade-in slide-in-from-bottom-2 duration-300`}>
                 <LocationSelector
                   language={language}
                   selectedCountry={selectedCountry}
@@ -318,7 +341,7 @@ export default function Home() {
         </div>
 
         {currentWeather && currentWeather.current && (
-          <div className="hidden lg:flex flex-none w-[420px] h-full bg-blue-50/50 dark:bg-slate-900 border-l border-blue-100 dark:border-slate-800 overflow-y-auto">
+          <div className="hidden lg:flex flex-none w-[420px] h-full bg-blue-50/50 dark:bg-slate-900 border-l border-blue-100 dark:border-slate-800 overflow-hidden">
             <div className="p-5 w-full min-h-full flex flex-col">
               <WeatherDisplay
                 weatherData={currentWeather}

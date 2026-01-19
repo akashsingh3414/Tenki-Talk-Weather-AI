@@ -4,7 +4,7 @@ import * as React from "react"
 import { useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Mic, Send, Square, Loader2, AlertTriangle, MapPin, Keyboard } from "lucide-react"
+import { Mic, Send, Square, Loader2, AlertTriangle, MapPin, Keyboard, Sparkles } from "lucide-react"
 import { i18n, type Language } from "@/lib/i18n"
 import { Transcriber } from "@/lib/types"
 
@@ -19,6 +19,8 @@ interface ChatInputProps {
   currentCity?: string
   showLocations?: boolean
   onToggleLocations?: () => void
+  showFamous?: boolean
+  onToggleFamous?: () => void
 }
 
 function Tooltip({
@@ -26,13 +28,15 @@ function Tooltip({
   content,
   visible,
   onMouseEnter,
-  onMouseLeave
+  onMouseLeave,
+  variant = "warning"
 }: {
   children: React.ReactNode,
   content: string,
   visible: boolean,
   onMouseEnter?: () => void,
-  onMouseLeave?: () => void
+  onMouseLeave?: () => void,
+  variant?: "warning" | "info"
 }) {
   return (
     <div
@@ -44,7 +48,8 @@ function Tooltip({
       {visible && (
         <div className="absolute bottom-full mb-3 flex flex-col items-center animate-in fade-in slide-in-from-bottom-2 duration-200 pointer-events-none z-50">
           <div className="bg-slate-900/95 dark:bg-slate-800/98 backdrop-blur-xl text-white text-[13px] py-2.5 px-4 rounded-xl whitespace-nowrap shadow-2xl border border-white/20 font-medium flex items-center gap-2 ring-1 ring-black/5">
-            <AlertTriangle size={14} className="text-amber-400" />
+            {variant === "warning" && <AlertTriangle size={14} className="text-amber-400" />}
+            {variant === "info" && <Sparkles size={14} className="text-blue-400" />}
             {content}
           </div>
           <div className="w-3 h-3 bg-slate-900/95 dark:bg-slate-800/98 rotate-45 -mt-1.5 border-r border-b border-white/20" />
@@ -65,11 +70,15 @@ export function ChatInput({
   currentCity,
   showLocations,
   onToggleLocations,
+  showFamous,
+  onToggleFamous,
 }: ChatInputProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [isRecording, setIsRecording] = React.useState(false)
   const [showMicTooltip, setShowMicTooltip] = React.useState(false)
   const [showSendTooltip, setShowSendTooltip] = React.useState(false)
+  const [showFamousTooltip, setShowFamousTooltip] = React.useState(false)
+  const [showLocationsTooltip, setShowLocationsTooltip] = React.useState(false)
   const [mediaRecorder, setMediaRecorder] = React.useState<MediaRecorder | null>(null)
   const chunksRef = useRef<Blob[]>([])
 
@@ -132,7 +141,7 @@ export function ChatInput({
     : label.placeholderNoCity
 
   return (
-    <div className="flex flex-col-reverse lg:flex-row w-full gap-3">
+    <div className="flex flex-col-reverse lg:flex-row w-full gap-2">
       <div className={`flex-1 min-w-0 relative w-full ${showLocations ? "hidden lg:block" : "block"}`}>
         <Input
           ref={inputRef}
@@ -140,9 +149,9 @@ export function ChatInput({
           onChange={(e) => onChange(e.target.value)}
           onKeyDown={handleKeyDown}
           title={!currentCity ? i18n[language].citySelector.selectCityTooltip : ""}
-          placeholder={isRecording ? "Listening..." : placeholder}
+          placeholder={isRecording ? label.listening : placeholder}
           disabled={isLoading || isRecording}
-          className={`w-full h-12 text-lg px-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-none transition-all focus-visible:ring-0 ${isRecording ? "text-blue-500 font-medium" : ""
+          className={`w-full h-12 text-md px-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-none transition-all focus-visible:ring-0 ${isRecording ? "text-blue-500 font-medium" : ""
             }`}
         />
 
@@ -157,44 +166,27 @@ export function ChatInput({
 
       <div className="flex items-center gap-2 justify-end lg:justify-start">
         {onToggleLocations && (
-          <button
-            onClick={onToggleLocations}
-            title={showLocations ? "Show Keyboard" : "Show Locations"}
-            className={`lg:hidden rounded-full h-12 w-12 border border-slate-200 dark:border-slate-800 transition-all flex items-center justify-center ${showLocations
-              ? "bg-blue-600 text-white border-blue-600 shadow-lg scale-110"
-              : "bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400"
-              }`}
+          <Tooltip
+            content={showLocations ? label.showKeyboard : label.showLocations}
+            visible={showLocationsTooltip}
+            onMouseEnter={() => setShowLocationsTooltip(true)}
+            onMouseLeave={() => setShowLocationsTooltip(false)}
+            variant="info"
           >
-            {showLocations ? <Keyboard size={22} /> : <MapPin size={22} />}
-          </button>
+            <button
+              onClick={onToggleLocations}
+              title=""
+              className={`lg:hidden rounded-full h-11 w-11 border border-slate-200 dark:border-slate-800 transition-all flex items-center justify-center ${showLocations
+                ? "bg-blue-600 text-white border-blue-600 shadow-lg scale-110"
+                : "bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400"
+                }`}
+            >
+              {showLocations ? <Keyboard size={20} /> : <MapPin size={20} />}
+            </button>
+          </Tooltip>
         )}
 
         <div className={`flex items-center gap-2 ${showLocations ? "hidden lg:flex" : "flex"}`}>
-          <Tooltip
-            content={i18n[language].citySelector.selectCityFirst}
-            visible={showMicTooltip && !currentCity}
-            onMouseEnter={() => setShowMicTooltip(true)}
-            onMouseLeave={() => setShowMicTooltip(false)}
-          >
-            <button
-              onClick={toggleRecording}
-              disabled={(isLoading && !isRecording)}
-              className={`rounded-full h-12 w-12 border border-slate-200 dark:border-slate-800 transition-all flex items-center justify-center ${isRecording
-                ? "animate-pulse shadow-lg scale-110 bg-red-500 text-white"
-                : "bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400"
-                } ${isLoading && !isRecording ? "cursor-not-allowed opacity-50" : ""}`}
-            >
-              {isRecording ? (
-                <Square size={20} />
-              ) : (
-                <Mic
-                  size={22}
-                  className={isLoading ? "animate-pulse text-slate-400" : ""}
-                />
-              )}
-            </button>
-          </Tooltip>
-
           {!isRecording && (
             <Tooltip
               content={i18n[language].citySelector.selectCityFirst}
@@ -205,13 +197,63 @@ export function ChatInput({
               <button
                 onClick={handleSubmit}
                 disabled={isLoading || !value.trim()}
-                className={`bg-blue-500 hover:bg-blue-600 text-white rounded-full h-12 w-12 flex items-center justify-center transition-all ${isLoading || !value.trim() ? "opacity-50 cursor-not-allowed" : ""}`}
+                className={`bg-blue-500 hover:bg-blue-600 text-white rounded-full h-12 px-6 flex items-center justify-center transition-all ${isLoading || !value.trim() ? "opacity-50 cursor-not-allowed" : ""}`}
               >
                 {isLoading ? (
-                  <Loader2 size={20} className="animate-spin" />
+                  <Loader2 size={22} className="animate-spin" />
                 ) : (
-                  <Send size={20} />
+                  <Send size={22} />
                 )}
+              </button>
+            </Tooltip>
+          )}
+
+          <Tooltip
+            content={i18n[language].citySelector.selectCityFirst}
+            visible={showMicTooltip && !currentCity}
+            onMouseEnter={() => setShowMicTooltip(true)}
+            onMouseLeave={() => setShowMicTooltip(false)}
+          >
+            <button
+              onClick={toggleRecording}
+              disabled={(isLoading && !isRecording)}
+              className={`rounded-full h-12 px-6 border border-slate-200 dark:border-slate-800 transition-all flex items-center justify-center gap-2 ${isRecording
+                ? "animate-pulse shadow-lg scale-110 bg-red-500 text-white"
+                : "bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400"
+                } ${isLoading && !isRecording ? "cursor-not-allowed opacity-50" : ""}`}
+            >
+              {isRecording ? (
+                <>
+                  <Square size={20} />
+                  <span className="text-sm font-medium">{label.stop}</span>
+                </>
+              ) : (
+                <Mic
+                  size={22}
+                  className={isLoading ? "animate-pulse text-slate-400" : ""}
+                />
+              )}
+            </button>
+          </Tooltip>
+
+          {onToggleFamous && (
+            <Tooltip
+              content={showFamous ? i18n[language].famousPlaces.hide : i18n[language].famousPlaces.show}
+              visible={showFamousTooltip}
+              onMouseEnter={() => setShowFamousTooltip(true)}
+              onMouseLeave={() => setShowFamousTooltip(false)}
+              variant="info"
+            >
+              <button
+                onClick={onToggleFamous}
+                title=""
+                className={`rounded-full h-12 px-5 border transition-all flex items-center justify-center gap-2 ${showFamous
+                  ? "bg-blue-800 text-white border-blue-800 shadow-lg scale-110"
+                  : "bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400"
+                  }`}
+              >
+                <Sparkles size={20} className={showFamous ? "animate-pulse" : ""} />
+                <span className="text-sm font-medium hidden sm:inline">{label.places}</span>
               </button>
             </Tooltip>
           )}

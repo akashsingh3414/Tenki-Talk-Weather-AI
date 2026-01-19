@@ -1,7 +1,25 @@
 "use client"
 
+import * as React from "react"
 import { i18n, type Language } from "@/lib/i18n"
 import { getTempColor } from "@/lib/weather_colors"
+import {
+  Droplets,
+  Wind,
+  Gauge,
+  Cloud,
+  Eye,
+  Sunrise,
+  Sunset,
+  ArrowDownToLine,
+  Thermometer,
+  Sun,
+  CloudRain,
+  CloudLightning,
+  Snowflake,
+  CloudFog,
+  CloudDrizzle
+} from "lucide-react"
 
 interface WeatherData {
   current: {
@@ -68,57 +86,69 @@ export function WeatherDisplay({ weatherData, language, isVertical = false }: We
     : null
 
   return (
-    <div className="w-full space-y-4">
-      <div className={`${currentStyle.bg} border ${currentStyle.border} rounded-xl p-3 sm:p-4 shadow-lg transition-colors duration-500`}>
-        <div className={`flex items-start justify-between mb-3 ${currentStyle.text}`}>
+    <div className={`w-full gap-1 space-y-2 ${!isVertical ? "lg:h-full lg:flex lg:flex-col" : ""}`}>
+      <div
+        className={`${currentStyle.bg} border ${currentStyle.border} rounded-xl p-3 sm:p-4 shadow-lg transition-colors duration-500 ${!isVertical ? "lg:flex-none" : ""}`}
+      >
+        <div className={`flex items-start justify-between mb-2 ${currentStyle.text}`}>
           <div>
-            <h2 className="text-base sm:text-lg font-bold">
+            <h2 className="text-lg sm:text-xl lg:text-xl font-bold">
               {current.city}
             </h2>
-            <p className="text-xs opacity-80">
+            <p className="text-sm sm:text-base lg:text-sm opacity-80">
               {current.country}
             </p>
           </div>
 
           <div className="text-right">
-            <p className="text-xl sm:text-2xl font-black">
+            <p className="text-2xl sm:text-3xl lg:text-3xl font-black">
               {Math.round(current.temp)}°C
             </p>
-            <p className="text-[10px] sm:text-[11px] opacity-70 font-semibold">
-              {labels.feelsLike}: {Math.round(current.feels_like)}°
+            <p className="text-xs sm:text-sm lg:text-xs opacity-70 font-semibold flex items-center justify-end gap-1 text-right">
+              <Thermometer size={14} className="opacity-80" />
+              {Math.round(current.feels_like)}°
             </p>
           </div>
         </div>
 
-        <p className={`text-xs font-bold capitalize mb-3 px-2 py-0.5 rounded-full bg-black/10 dark:bg-white/10 w-fit ${currentStyle.text}`}>
-          {current.details}
-        </p>
+        <div className="flex items-center gap-3 mb-4">
+          <WeatherConditionIcon
+            condition={current.description}
+            size={30}
+            className={currentStyle.text}
+          />
+          <p
+            className={`text-sm sm:text-base lg:text-sm font-bold capitalize px-3 py-1 rounded-full bg-black/10 dark:bg-white/10 w-fit ${currentStyle.text}`}
+          >
+            {current.details}
+          </p>
+        </div>
 
-        {/* Sun Times Section */}
         {(sunriseTime || sunsetTime) && (
-          <div className={`flex gap-3 mb-4 text-xs ${currentStyle.text}`}>
+          <div className={`flex gap-3 mb-2 text-xs lg:text-sm ${currentStyle.text}`}>
             {sunriseTime && (
-              <div className="flex items-center gap-1.5 bg-black/10 dark:bg-white/10 px-2 py-1 rounded-lg">
-                <span className="opacity-70 font-semibold">{labels.sunrise}:</span>
+              <div className="flex items-center gap-1.5 bg-black/10 dark:bg-white/10 px-2.5 py-1.5 rounded-lg border border-white/5">
+                <Sunrise size={14} className="opacity-80" />
                 <span className="font-black">{sunriseTime}</span>
               </div>
             )}
             {sunsetTime && (
-              <div className="flex items-center gap-1.5 bg-black/10 dark:bg-white/10 px-2 py-1 rounded-lg">
-                <span className="opacity-70 font-semibold">{labels.sunset}:</span>
+              <div className="flex items-center gap-1.5 bg-black/10 dark:bg-white/10 px-2.5 py-1.5 rounded-lg border border-white/5">
+                <Sunset size={14} className="opacity-80" />
                 <span className="font-black">{sunsetTime}</span>
               </div>
             )}
           </div>
         )}
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-          <Stat label={labels.humidity} value={`${current.humidity}%`} style={currentStyle} />
-          <Stat label={labels.windSpeed} value={`${current.wind_speed} m/s`} style={currentStyle} />
-          <Stat label={labels.pressure} value={`${current.pressure} hPa`} style={currentStyle} />
-          <Stat label={labels.cloudCover} value={`${current.clouds}%`} style={currentStyle} />
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+          <Stat icon={<Droplets size={14} />} label={labels.humidity} value={`${current.humidity}%`} style={currentStyle} />
+          <Stat icon={<Wind size={14} />} label={labels.windSpeed} value={`${current.wind_speed} m/s`} style={currentStyle} />
+          <Stat icon={<Gauge size={14} />} label={labels.pressure} value={`${current.pressure} hPa`} style={currentStyle} />
+          <Stat icon={<Cloud size={14} />} label={labels.cloudCover} value={`${current.clouds}%`} style={currentStyle} />
           {visibilityKm && (
             <Stat
+              icon={<Eye size={14} />}
               label={labels.visibility}
               value={`${visibilityKm}km`}
               subtitle={visibilityLevel || undefined}
@@ -127,6 +157,7 @@ export function WeatherDisplay({ weatherData, language, isVertical = false }: We
           )}
           {(current.sea_level || current.grnd_level) && (
             <Stat
+              icon={<ArrowDownToLine size={14} />}
               label={current.sea_level ? labels.seaLevel : labels.groundLevel}
               value={`${current.sea_level || current.grnd_level} hPa`}
               style={currentStyle}
@@ -136,21 +167,29 @@ export function WeatherDisplay({ weatherData, language, isVertical = false }: We
       </div>
 
       {forecast && forecast.length > 0 && (
-        <div className="bg-card border border-border rounded-xl p-3 sm:p-4">
-          <h3 className="text-xs font-semibold uppercase text-muted-foreground mb-3">
+        <div className={`bg-card border border-border rounded-xl p-2 sm:p-4 lg:p-2 lg:mt-1 ${!isVertical ? "lg:flex-1 lg:flex lg:flex-col lg:min-h-0" : ""}`}>
+          <h3 className="text-sm lg:text-[12px] font-semibold uppercase text-muted-foreground mb-2 lg:mb-1">
             {labels.forecast}{" "}
-            <span className="text-3xs lowercase">
+            <span className="text-xs lg:text-[10px] lowercase opacity-70">
               {labels.forecastHint}
             </span>
           </h3>
 
-          <div className={`flex ${isVertical ? "flex-row overflow-x-auto no-scrollbar" : "flex-row overflow-x-auto snap-x snap-mandatory no-scrollbar"} gap-3 pb-1`}>
+          <div
+            className={`flex ${isVertical
+              ? "flex-row overflow-x-auto no-scrollbar"
+              : "flex-row overflow-x-auto snap-x snap-mandatory no-scrollbar lg:overflow-y-auto lg:flex-1"
+              } gap-2 pb-0.5`}
+          >
             {!isVertical ? (
               // 2x2 Grid Layout for Desktop Sidebar (Scroll 4 at a time)
-              Array.from({ length: Math.ceil(forecast.slice(0, 24).length / 4) }).map((_, groupIdx) => (
-                <div key={groupIdx} className="grid grid-cols-2 grid-rows-2 gap-2 flex-none w-full snap-start">
+              Array.from({ length: Math.ceil(forecast.slice(0, 12).length / 4) }).map((_, groupIdx) => (
+                <div
+                  key={groupIdx}
+                  className="grid grid-cols-2 grid-rows-2 gap-1.5 flex-none w-full snap-start"
+                >
                   {forecast.slice(groupIdx * 4, groupIdx * 4 + 4).map((item, idx) => (
-                    <ForecastCard key={idx} item={item} language={language} labels={labels} />
+                    <ForecastCard key={idx} item={item} language={language} labels={labels} isCompact={true} />
                   ))}
                 </div>
               ))
@@ -169,7 +208,21 @@ export function WeatherDisplay({ weatherData, language, isVertical = false }: We
   )
 }
 
-function ForecastCard({ item, language, labels }: { item: any, language: Language, labels: any }) {
+export function WeatherConditionIcon({ condition, size = 24, className }: { condition: string, size?: number, className?: string }) {
+  const c = condition.toLowerCase()
+
+  if (c.includes("clear") || c.includes("sky")) return <Sun size={size} className={className} />
+  if (c.includes("thunderstorm")) return <CloudLightning size={size} className={className} />
+  if (c.includes("drizzle")) return <CloudDrizzle size={size} className={className} />
+  if (c.includes("rain")) return <CloudRain size={size} className={className} />
+  if (c.includes("snow")) return <Snowflake size={size} className={className} />
+  if (c.includes("mist") || c.includes("fog") || c.includes("haze")) return <CloudFog size={size} className={className} />
+  if (c.includes("cloud")) return <Cloud size={size} className={className} />
+
+  return <Sun size={size} className={className} /> // Default
+}
+
+function ForecastCard({ item, language, labels, isCompact = false }: { item: any, language: Language, labels: any, isCompact?: boolean }) {
   const itemStyle = getTempColor(item.temp)
   const time = item.time
     ? new Date(item.time).toLocaleTimeString(
@@ -179,36 +232,60 @@ function ForecastCard({ item, language, labels }: { item: any, language: Languag
     : "--:--"
 
   return (
-    <div className={`${itemStyle.bg} border ${itemStyle.border} rounded-lg p-3 w-full h-full flex flex-col justify-between transition-all hover:scale-[1.02] active:scale-[0.98]`}>
+    <div className={`${itemStyle.bg} border ${itemStyle.border} rounded-lg ${isCompact ? "p-2 lg:p-3" : "p-3"} w-full h-full flex flex-col justify-between transition-all hover:scale-[1.02] active:scale-[0.98]`}>
       <div className={itemStyle.text}>
-        <p className="text-xs font-bold opacity-80 mb-1">{time}</p>
-        <p className="text-xl sm:text-2xl font-black mb-1">{Math.round(item.temp)}°</p>
-        <p className="text-[10px] sm:text-xs font-bold capitalize opacity-90 leading-tight line-clamp-2">{item.description}</p>
+        <p className={`${isCompact ? "text-[11px] lg:text-sm" : "text-[10px]"} font-bold opacity-80 ${isCompact ? "mb-0 lg:mb-1" : "mb-1"}`}>{time}</p>
+        <div className="flex items-center gap-2 mb-1">
+          <WeatherConditionIcon condition={item.description} size={isCompact ? 20 : 24} />
+          <p className={`${isCompact ? "text-lg lg:text-2xl" : "text-xl sm:text-2xl"} font-black`}>{Math.round(item.temp)}°</p>
+        </div>
+        <p className={`${isCompact ? "text-xs lg:text-sm" : "text-[10px] sm:text-xs"} font-bold capitalize opacity-90 leading-tight ${isCompact ? "line-clamp-1 lg:line-clamp-2" : "line-clamp-2"}`}>{item.description}</p>
       </div>
 
-      <div className={`space-y-0.5 text-[10px] sm:text-xs mt-3 pt-2 border-t border-white/20 ${itemStyle.text}`}>
-        <div className="flex justify-between">
-          <span className="opacity-80">{labels.humidity}</span>
-          <span className="font-bold">{item.humidity}%</span>
+      <div className={`${isCompact ? "text-[10px] lg:text-xs" : "text-[10px] sm:text-xs"} ${isCompact ? "pt-1" : "pt-2"} border-t border-white/20 ${itemStyle.text} min-w-0`}>
+        <div className="flex justify-between items-center gap-1">
+          <div className="flex items-center gap-1 opacity-80 min-w-0">
+            <Droplets size={12} className="flex-none" />
+          </div>
+          <span className="font-bold truncate">{item.humidity}%</span>
         </div>
-        <div className="flex justify-between">
-          <span className="opacity-80">{labels.windSpeed}</span>
-          <span className="font-bold">{item.wind_speed}m/s</span>
-        </div>
+        {!isCompact && (
+          <div className="flex justify-between items-center gap-1">
+            <div className="flex items-center gap-1 opacity-80 min-w-0">
+              <Wind size={12} className="flex-none" />
+            </div>
+            <span className="font-bold truncate">{item.wind_speed}m/s</span>
+          </div>
+        )}
       </div>
     </div>
   )
 }
 
-function Stat({ label, value, subtitle, style }: { label: string; value: string; subtitle?: string; style: any }) {
+function Stat({
+  label,
+  value,
+  subtitle,
+  style,
+  icon
+}: {
+  label: string;
+  value: string;
+  subtitle?: string;
+  style: any;
+  icon?: React.ReactNode;
+}) {
   return (
-    <div className="bg-black/10 dark:bg-white/10 backdrop-blur-sm border border-white/10 rounded-lg p-2 flex flex-col items-start">
-      <p className={`text-[9px] uppercase font-bold opacity-70 tracking-wider mb-0.5 ${style.text}`}>
-        {label}
-      </p>
-      <p className={`text-sm font-black ${style.text}`}>{value}</p>
+    <div className="bg-black/10 dark:bg-white/10 backdrop-blur-sm border border-white/10 rounded-lg p-2 flex flex-col items-start min-w-0 transition-all hover:bg-black/20 dark:hover:bg-white/20">
+      <div className={`flex items-center gap-1.5 mb-1 ${style.text}`}>
+        {icon && <span className="opacity-80">{icon}</span>}
+        <p className="text-[9px] uppercase font-bold opacity-70 tracking-wider truncate">
+          {label}
+        </p>
+      </div>
+      <p className={`text-[13px] lg:text-sm font-black truncate w-full ${style.text}`}>{value}</p>
       {subtitle && (
-        <p className={`text-[9px] font-semibold opacity-60 ${style.text}`}>{subtitle}</p>
+        <p className={`text-[10px] font-semibold opacity-60 truncate w-full ${style.text}`}>{subtitle}</p>
       )}
     </div>
   )

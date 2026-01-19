@@ -15,13 +15,17 @@ A multilingual weather-aware travel assistant with an AI-powered conversational 
 
 ### AI Models
 
-**Primary Model: Meta Llama 3.2 3B Instruct (Hugging Face)**
-- Fast inference with low latency.
-- Optimized for real-time conversational responses and structured JSON output.
+**Primary Model**
+- Model is defined via environment configuration.
+- Default: Meta Llama 3.2 3B Instruct (Hugging Face)
+- Optimized for fast inference, low latency, and structured JSON output.
+- Used for real-time conversational responses.
 
-**Fallback Model: Google Gemini 1.5 Flash**
-- Activated during primary model failures or rate limits.
-- Ensures service continuity with high reasoning capabilities.
+**Fallback Model(s)**
+- Fully configurable via environment variables.
+- Automatically activated when the primary model fails, times out, or hits rate limits.
+- Can be switched to any supported provider or model (e.g., Gemini, OpenAI, Anthropic, etc.) without code changes.
+- Ensures high availability and service continuity.
 
 **Design**: Provider-agnostic interface enables seamless model switching and robust fallback logging.
 
