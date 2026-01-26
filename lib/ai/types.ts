@@ -1,10 +1,13 @@
 export interface Forecast {
     time: string;
     temp: number;
+    feels_like: number;
     description: string;
     humidity: number;
     wind_speed: number;
     rain: number;
+    pop: number;
+    pressure: number;
 }
 
 export interface WeatherData {
@@ -21,12 +24,12 @@ export interface WeatherData {
         city: string;
         country: string;
         uvi: number | null;
-        sunrise?: number; // Unix timestamp
-        sunset?: number; // Unix timestamp
-        sea_level?: number; // hPa
-        grnd_level?: number; // hPa
-        wind_deg?: number; // degrees
-        dt?: number; // Unix timestamp
+        sunrise?: number;
+        sunset?: number;
+        sea_level?: number;
+        grnd_level?: number;
+        wind_deg?: number;
+        dt?: number;
     };
     forecast?: Forecast[];
 }

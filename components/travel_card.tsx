@@ -2,12 +2,14 @@
 
 import React, { useState } from "react"
 import { Card } from "@/components/ui/card"
-import { ChevronDown, ChevronUp, MapPin, Sparkles, Clock, Info, Globe, ExternalLink } from "lucide-react"
+import { ChevronDown, ChevronUp, MapPin, Sparkles, Info, Globe } from "lucide-react"
+import { i18n, type Language } from "@/lib/i18n"
 
 interface TravelPlace {
     name: string
     description: string
     suitability: string
+    matchLabel: string
     details: string
     imageSearchQuery: string
     website?: string
@@ -16,11 +18,12 @@ interface TravelPlace {
 
 interface TravelCardProps {
     place: TravelPlace
-    language: string
+    language: Language
 }
 
 export function TravelCard({ place, language }: TravelCardProps) {
     const [isExpanded, setIsExpanded] = useState(false)
+    const labels = i18n[language]?.travelCard || i18n["en-US"].travelCard
 
     return (
         <Card className="overflow-hidden border border-border bg-card hover:shadow-lg transition-all duration-300">
@@ -34,7 +37,7 @@ export function TravelCard({ place, language }: TravelCardProps) {
                     </div>
                     <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-full text-[10px] font-bold uppercase tracking-wider border border-emerald-500/20">
                         <Sparkles className="w-3 h-3" />
-                        {language === "ja-JP" ? "おすすめ" : "Best Fit"}
+                        {place.matchLabel}
                     </div>
                 </div>
 
@@ -55,12 +58,12 @@ export function TravelCard({ place, language }: TravelCardProps) {
                 >
                     {isExpanded ? (
                         <>
-                            {language === "ja-JP" ? "詳細を閉じる" : "Hide Details"}
+                            {labels.hideDetails}
                             <ChevronUp className="w-3 h-3" />
                         </>
                     ) : (
                         <>
-                            {language === "ja-JP" ? "詳細を見る" : "View Details"}
+                            {labels.viewDetails}
                             <ChevronDown className="w-3 h-3" />
                         </>
                     )}
@@ -74,7 +77,7 @@ export function TravelCard({ place, language }: TravelCardProps) {
                             </div>
                             <div className="space-y-1">
                                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-                                    {language === "ja-JP" ? "詳しい情報" : "Detailed Info"}
+                                    {labels.detailedInfo}
                                 </p>
                                 <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">
                                     {place.details}
@@ -92,7 +95,7 @@ export function TravelCard({ place, language }: TravelCardProps) {
                                         className="flex items-center justify-center gap-2 px-3 py-2 bg-muted hover:bg-muted/80 rounded-lg text-xs font-semibold transition-colors border border-border"
                                     >
                                         <Globe className="w-3.5 h-3.5" />
-                                        {language === "ja-JP" ? "ウェブサイト" : "Website"}
+                                        {labels.website}
                                     </a>
                                 )}
                                 {place.mapsUrl && (
@@ -103,7 +106,7 @@ export function TravelCard({ place, language }: TravelCardProps) {
                                         className="flex items-center justify-center gap-2 px-3 py-2 bg-blue-500 text-white hover:bg-blue-600 rounded-lg text-xs font-semibold transition-all shadow-sm"
                                     >
                                         <MapPin className="w-3.5 h-3.5" />
-                                        {language === "ja-JP" ? "Google マップ" : "Google Maps"}
+                                        {labels.googleMaps}
                                     </a>
                                 )}
                             </div>

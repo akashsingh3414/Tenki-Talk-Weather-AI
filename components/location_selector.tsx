@@ -1,32 +1,7 @@
-"use client"
-
 import React, { useEffect, useState, useRef } from "react"
 import { ChevronDown, MapPin, Loader2, AlertTriangle, Check, Search } from "lucide-react"
 import { i18n, type Language } from "@/lib/i18n"
-
-interface Country {
-  name: string
-  code: string
-}
-
-interface City {
-  id: string
-  name: string
-  countryCode: string
-}
-
-interface GeoNamesCountry {
-  countryName: string
-  countryCode: string
-}
-
-interface GeoNamesResponse<T> {
-  geonames?: T[]
-  status?: {
-    message: string
-    value: number
-  }
-}
+import { useGeoNames } from "@/app/hooks/useGeoNames"
 
 interface LocationSelectorProps {
   language: Language
@@ -36,8 +11,6 @@ interface LocationSelectorProps {
   onCityChange: (name: string) => void
   disabled?: boolean
 }
-
-const GEONAMES_USER = process.env.NEXT_PUBLIC_GEONAMES_USER
 
 function Tooltip({
   children,
@@ -80,12 +53,15 @@ export function LocationSelector({
   onCityChange,
   disabled,
 }: LocationSelectorProps) {
-  const [countries, setCountries] = useState<Country[]>([])
-  const [cities, setCities] = useState<City[]>([])
-  const [loadingCountries, setLoadingCountries] = useState(false)
-  const [loadingCities, setLoadingCities] = useState(false)
-  const [showTooltip, setShowTooltip] = useState(false)
+  const {
+    countries,
+    cities,
+    loadingCountries,
+    loadingCities,
+    fetchCities
+  } = useGeoNames(language)
 
+  const [showTooltip, setShowTooltip] = useState(false)
   const [countrySearch, setCountrySearch] = useState("")
   const [citySearch, setCitySearch] = useState("")
   const [isCountryOpen, setIsCountryOpen] = useState(false)
@@ -110,93 +86,18 @@ export function LocationSelector({
   }, [])
 
   useEffect(() => {
-    if (!GEONAMES_USER) return
-
-    const fetchCountries = async () => {
-      setLoadingCountries(true)
-      try {
-        const res = await fetch(
-          `https://secure.geonames.org/countryInfoJSON?username=${GEONAMES_USER}`
-        )
-        const data: GeoNamesResponse<GeoNamesCountry> = await res.json()
-        if (Array.isArray(data.geonames)) {
-          const uniqueCountries = Array.from(
-            new Map(
-              data.geonames.map((c) => [
-                c.countryCode,
-                { name: c.countryName, code: c.countryCode },
-              ])
-            ).values()
-          ).sort((a, b) => a.name.localeCompare(b.name))
-          setCountries(uniqueCountries)
-        }
-      } catch (err) {
-        console.error("Failed to fetch countries", err)
-      } finally {
-        setLoadingCountries(false)
-      }
-    }
-    fetchCountries()
-  }, [language])
-
-  useEffect(() => {
-    if (!selectedCountry || !GEONAMES_USER) {
-      setCities([])
-      return
-    }
-
-    const currentCountryName = countries.find(c => c.code === selectedCountry)?.name
-
-    const fetchCities = async () => {
-      setLoadingCities(true)
-      try {
-        const res = await fetch(
-          `https://secure.geonames.org/searchJSON?username=${GEONAMES_USER}&country=${selectedCountry}&featureClass=P&maxRows=500&orderby=population`
-        )
-        const data: GeoNamesResponse<any> = await res.json()
-        
-        if (Array.isArray(data.geonames)) {
-          const processedCities = data.geonames
-            .filter((c: any) => {
-              const nameLower = c.name.toLowerCase()
-              const countryLower = currentCountryName?.toLowerCase()
-              if (countryLower && (nameLower === countryLower || nameLower.includes("republic of") || nameLower.includes("kingdom of"))) {
-                return false
-              }
-              return true
-            })
-            .map((c: any) => ({
-              id: String(c.geonameId),
-              name: c.name,
-              countryCode: selectedCountry,
-            }))
-
-          const uniqueCities = Array.from(
-            new Map(
-              processedCities.map((c) => [c.id, c])
-            ).values()
-          ).sort((a, b) => a.name.localeCompare(b.name))
-          
-          setCities(uniqueCities)
-        }
-      } catch (err) {
-        console.error("Failed to fetch cities", err)
-      } finally {
-        setLoadingCities(false)
-      }
-    }
-    fetchCities()
-  }, [selectedCountry, countries])
+    fetchCities(selectedCountry)
+  }, [selectedCountry, fetchCities])
 
   const filteredCountries = countries.filter(c =>
-    c.name.toLowerCase().includes(countrySearch.toLowerCase())
+    c.countryName.toLowerCase().includes(countrySearch.toLowerCase())
   )
 
   const filteredCities = cities.filter(c =>
     c.name.toLowerCase().includes(citySearch.toLowerCase())
   )
 
-  const currentCountryName = countries.find(c => c.code === selectedCountry)?.name || ""
+  const currentCountryName = countries.find(c => c.countryCode === selectedCountry)?.countryName || ""
 
   return (
     <div className="flex flex-col-reverse lg:flex-row gap-3 w-full z-1000">
@@ -236,17 +137,17 @@ export function LocationSelector({
               <div className="p-2 py-1.5">
                 {filteredCountries.map((c) => (
                   <button
-                    key={c.code}
+                    key={c.countryCode}
                     onClick={() => {
-                      onCountryChange(c.code)
+                      onCountryChange(c.countryCode)
                       onCityChange("")
                       setCountrySearch("")
                       setIsCountryOpen(false)
                     }}
                     className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-left group"
                   >
-                    <span>{c.name}</span>
-                    {selectedCountry === c.code && <Check className="w-4 h-4 text-blue-600" />}
+                    <span>{c.countryName}</span>
+                    {selectedCountry === c.countryCode && <Check className="w-4 h-4 text-blue-600" />}
                   </button>
                 ))}
               </div>
@@ -259,7 +160,6 @@ export function LocationSelector({
         )}
       </div>
 
-      {/* City Selector */}
       <div className="relative w-full" ref={cityRef}>
         <Tooltip
           content={t.selectCountryFirst}

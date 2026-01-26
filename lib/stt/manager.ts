@@ -1,18 +1,18 @@
 import { BrowserSTTProvider } from "./providers/browser.provider";
-import { WhisperSTTProvider } from "./providers/whisper.provider";
+import { HuggingFaceSTTProvider } from "./providers/huggingface.provider";
 import { STTOptions, STTResult } from "./types";
 
 export class STTManager {
     private browserProvider: BrowserSTTProvider;
-    private whisperProvider: WhisperSTTProvider;
+    private cloudProvider: HuggingFaceSTTProvider;
 
     constructor() {
         this.browserProvider = new BrowserSTTProvider();
-        this.whisperProvider = new WhisperSTTProvider();
+        this.cloudProvider = new HuggingFaceSTTProvider();
     }
 
-    private getLanguageProvider(language: string) {
-        return this.whisperProvider;
+    private getLanguageProvider() {
+        return this.cloudProvider;
     }
 
     async startHybrid(options: STTOptions) {
@@ -43,7 +43,7 @@ export class STTManager {
             return result;
         }
 
-        const provider = this.getLanguageProvider(options.language);
+        const provider = this.getLanguageProvider();
         try {
             return await provider.transcribe(audio, options);
         } catch (e) {

@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react"
 import { i18n, type Language } from "@/lib/i18n"
-import { MapPin, Loader2 } from "lucide-react"
+import { MapPin } from "lucide-react"
 import { WeatherConditionIcon } from "./weather_display"
+import { getWeather } from "@/app/actions"
 
 interface FamousPlace {
     city: string
@@ -45,19 +46,14 @@ export function FamousPlaces({
     useEffect(() => {
         const fetchAllWeather = async () => {
             setLoading(true)
-            setWeatherData({}) // Clear stale data
+            setWeatherData({})
             const results: Record<string, PlaceWeather> = {}
 
             try {
                 await Promise.all(PLACES.map(async (place) => {
                     try {
-                        const res = await fetch("/api/weather", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ city: place.city, language }),
-                        })
-                        if (res.ok) {
-                            const data = await res.json()
+                        const data = await getWeather(place.city, language)
+                        if (data && data.current) {
                             results[place.city] = {
                                 city: data.current.city,
                                 temp: data.current.temp,
@@ -65,13 +61,10 @@ export function FamousPlaces({
                                 countryCode: place.countryCode
                             }
                         }
-                    } catch (e) {
-                        console.error(`Failed to fetch weather for ${place.city}`, e)
-                    }
+                    } catch (_e) { }
                 }))
                 setWeatherData(results)
-            } catch (err) {
-                console.error("Failed to fetch famous places weather", err)
+            } catch (_err) {
             } finally {
                 setLoading(false)
             }
@@ -101,8 +94,7 @@ export function FamousPlaces({
                         const weather = weatherData[place.city]
                         if (!weather) return null
 
-                        // Use hardcoded translation if available in i18n
-                        const localizedCityName = (t.places as any)?.[place.city] || weather.city
+                        const localizedCityName = (t.places as Record<string, string>)?.[place.city] || weather.city
 
                         return (
                             <button

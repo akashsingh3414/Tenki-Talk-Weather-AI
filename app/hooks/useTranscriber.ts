@@ -24,8 +24,6 @@ export function useTranscriber(): Transcriber {
     currentLanguage.current = language;
     setError(undefined);
 
-    console.log(`[STT] Starting live recognition (${language})`);
-
     await sttManager.startHybrid({
       language,
       onResult: (result) => {
@@ -50,14 +48,11 @@ export function useTranscriber(): Transcriber {
     setError(undefined);
 
     if (currentText && currentText.trim().length >= 2) {
-      console.log(`[STT] Using Browser result: "${currentText}"`);
       setOutput({ text: currentText });
       setInterimTranscript(currentText);
       setIsProcessing(false);
       return;
     }
-
-    console.log(`[STT] No browser result, falling back to Cloud (${language})`);
 
     try {
       const result = await sttManager.finalizeWithFallback(audioBlob, {
@@ -87,7 +82,6 @@ export function useTranscriber(): Transcriber {
   }, []);
 
   const stopLive = useCallback(async (audioBlob?: Blob) => {
-    console.log("[STT] Stopping... final transcript check:", transcriptRef.current);
     sttManager.stopAll();
     if (audioBlob) {
       await processAudioBlob(audioBlob, currentLanguage.current, transcriptRef.current);

@@ -15,7 +15,6 @@ export function getTempColor(temp: number | undefined): TempColorStyle {
 
     if (temp === undefined) return defaultStyle
 
-    // Freezing (< 0°C) - Vibrant Sky Blue
     if (temp < 0) {
         return {
             bg: "bg-sky-400 dark:bg-sky-600",
@@ -25,7 +24,6 @@ export function getTempColor(temp: number | undefined): TempColorStyle {
         }
     }
 
-    // Cold (0°C - 15°C) - Bright Azure
     if (temp < 15) {
         return {
             bg: "bg-blue-500 dark:bg-blue-700",
@@ -35,7 +33,6 @@ export function getTempColor(temp: number | undefined): TempColorStyle {
         }
     }
 
-    // Mild (15°C - 25°C) - Fresh Emerald / Mint
     if (temp < 25) {
         return {
             bg: "bg-emerald-500 dark:bg-emerald-700",
@@ -45,7 +42,6 @@ export function getTempColor(temp: number | undefined): TempColorStyle {
         }
     }
 
-    // Warm (25°C - 32°C) - Sunny Orange
     if (temp < 32) {
         return {
             bg: "bg-orange-500 dark:bg-orange-700",
@@ -55,7 +51,6 @@ export function getTempColor(temp: number | undefined): TempColorStyle {
         }
     }
 
-    // Hot (> 32°C) - Vibrant Rose
     return {
         bg: "bg-rose-500 dark:bg-rose-700",
         border: "border-rose-400 dark:border-rose-600",

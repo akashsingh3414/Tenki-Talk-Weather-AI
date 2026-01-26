@@ -16,7 +16,8 @@ export interface AIProvider {
         weatherData: WeatherData,
         language: string,
         context: SessionContext,
-        targetDay?: Date
+        targetDay?: Date,
+        duration?: number
     ): Promise<string>;
 
     generateChatResponse(

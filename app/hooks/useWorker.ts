@@ -14,7 +14,6 @@ export function useWorker(
 function createWorker(messageEventHandler: MessageEventHandler): Worker | null {
   if (typeof window === 'undefined') return null
 
-  // Use the static string path to bypass Next.js bundler
   const worker = new Worker('/worker.js', {
     type: 'module'
   })

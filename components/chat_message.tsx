@@ -1,37 +1,15 @@
 "use client"
 
 import { MessageCircle, Cloud } from "lucide-react"
-import { i18n, type Language } from "@/lib/i18n"
+import { type Language } from "@/lib/i18n"
 import ReactMarkdown from "react-markdown"
-
-interface CurrentWeather {
-  city: string
-  country: string
-  temp: number
-  feels_like: number
-  description: string
-  details: string
-  humidity: number
-  wind_speed: number
-}
-
-interface Forecast {
-  time: string
-  temp: number
-  description: string
-}
-
-interface Weather {
-  current: CurrentWeather
-  forecast: Forecast[]
-}
-
 import { TravelCard } from "@/components/travel_card"
 
 interface TravelPlace {
   name: string
   description: string
   suitability: string
+  matchLabel: string
   details: string
   imageSearchQuery: string
   website?: string
@@ -41,13 +19,13 @@ interface TravelPlace {
 interface TravelJsonResponse {
   explanation: string
   places: TravelPlace[]
+  closing?: string
 }
 
 interface Message {
   id: string
   type: "user" | "ai"
   content: string
-  weather?: Weather
   timestamp: Date
   travelPlans?: TravelJsonResponse
 }
@@ -59,7 +37,6 @@ interface ChatMessageProps {
 
 export function ChatMessage({ message, language }: ChatMessageProps) {
   const isUser = message.type === "user"
-  const labels = i18n[language].chatMessage
 
   return (
     <div className={`flex ${isUser ? "justify-end" : "justify-start"} mb-6`}>
@@ -96,49 +73,24 @@ export function ChatMessage({ message, language }: ChatMessageProps) {
                     ))}
                   </div>
                 )}
+
+                {message.travelPlans?.closing && (
+                  <p className="mt-6 text-sm font-medium text-slate-600 dark:text-slate-400 animate-in fade-in slide-in-from-bottom-2 duration-500 delay-200">
+                    {message.travelPlans.closing}
+                  </p>
+                )}
               </div>
             )}
           </div>
 
-
           <span className="text-[11px] text-muted-foreground ml-1">
             {message.timestamp.toLocaleTimeString(
-              language === "ja-JP" ? "ja-JP" : "en-US",
+              language === "ja-JP" ? "ja-JP" : language === "hi-IN" ? "hi-IN" : "en-US",
               { hour: "2-digit", minute: "2-digit" }
             )}
           </span>
         </div>
       </div>
-    </div>
-  )
-}
-
-function getTempCardColor(temp: number) {
-  if (temp <= 10)
-    return "bg-blue-100 text-blue-900 border-blue-200 dark:bg-blue-950 dark:text-blue-200 dark:border-blue-800"
-  if (temp <= 20)
-    return "bg-teal-100 text-teal-900 border-teal-200 dark:bg-teal-950 dark:text-teal-200 dark:border-teal-800"
-  if (temp <= 30)
-    return "bg-amber-100 text-amber-900 border-amber-200 dark:bg-amber-950 dark:text-amber-200 dark:border-amber-800"
-  return "bg-red-100 text-red-900 border-red-200 dark:bg-red-950 dark:text-red-200 dark:border-red-800"
-}
-
-function Info({
-  label,
-  value,
-  sub,
-}: {
-  label: string
-  value: string
-  sub?: string
-}) {
-  return (
-    <div className="rounded-lg bg-gray-50 dark:bg-gray-800 p-3">
-      <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="font-semibold">{value}</p>
-      {sub && (
-        <p className="text-xs capitalize text-muted-foreground">{sub}</p>
-      )}
     </div>
   )
 }

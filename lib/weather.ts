@@ -1,11 +1,12 @@
-
 import { WeatherData } from "./ai/types";
 
 interface ForecastItem {
     dt_txt: string;
     main: {
         temp: number;
+        feels_like: number;
         humidity: number;
+        pressure: number;
     };
     weather: {
         main: string;
@@ -17,6 +18,7 @@ interface ForecastItem {
     rain?: {
         "3h"?: number;
     };
+    pop: number;
 }
 
 const weatherCache = new Map<string, { data: WeatherData; timestamp: number }>();
@@ -113,12 +115,12 @@ export function getVisibilityLevel(visibilityMeters: number, language: string = 
 export async function fetchWeatherData(city: string, language: string = "en-US"): Promise<WeatherData | null> {
     const normalizedCity = city.toLowerCase().trim();
     const langCode = mapLanguageCode(language);
-    const cacheKey = `${normalizedCity}_${langCode}`;
+    // Add version to cache key to invalidate old data structures
+    const cacheKey = `${normalizedCity}_${langCode}_v2`;
 
     const cached = weatherCache.get(cacheKey);
 
     if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-        console.log(`[Weather Cache] Serving cached data for: ${cacheKey}`);
         return cached.data;
     }
 
@@ -128,7 +130,6 @@ export async function fetchWeatherData(city: string, language: string = "en-US")
     }
 
     try {
-        console.log(`[Weather API] Fetching fresh data for city: ${city} (lang: ${langCode})`);
         const weatherRes = await fetch(
             `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${apiKey}&units=metric&lang=${langCode}`
         );
@@ -146,7 +147,7 @@ export async function fetchWeatherData(city: string, language: string = "en-US")
 
         const forecastData = await forecastRes.json();
 
-        const next24HoursForecast = forecastData.list?.slice(0, 8) || [];
+        const next24HoursForecast = forecastData.list || [];
 
         const result: WeatherData = {
             current: {
@@ -172,19 +173,20 @@ export async function fetchWeatherData(city: string, language: string = "en-US")
             forecast: next24HoursForecast.map((item: ForecastItem) => ({
                 time: item.dt_txt,
                 temp: item.main?.temp,
+                feels_like: item.main?.feels_like,
                 description: item.weather?.[0]?.description,
                 humidity: item.main?.humidity,
                 wind_speed: item.wind?.speed,
                 rain: item.rain?.["3h"] || 0,
+                pop: item.pop || 0,
+                pressure: item.main?.pressure,
             })),
         };
 
         weatherCache.set(cacheKey, { data: result, timestamp: Date.now() });
         return result;
     } catch (error) {
-        console.error(`[Weather API] Failed to fetch for ${city}:`, error);
         if (cached) {
-            console.log(`[Weather Cache] Serving STALE data due to API error for: ${cacheKey}`);
             return cached.data;
         }
         throw error;

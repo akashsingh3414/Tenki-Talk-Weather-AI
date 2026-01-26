@@ -2,6 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme_provider"
+import { ClientLayout } from "@/components/client_layout"
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -26,8 +27,8 @@ export const metadata: Metadata = {
     apple: "/apple-icon.png",
   },
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#0d9488" }, // Teal-600
-    { media: "(prefers-color-scheme: dark)", color: "#020617" },  // Slate-950
+    { media: "(prefers-color-scheme: light)", color: "#0d9488" },
+    { media: "(prefers-color-scheme: dark)", color: "#020617" },
   ],
   viewport: {
     width: "device-width",
@@ -45,9 +46,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`font-sans antialiased`}>
+      <body className="font-sans antialiased">
         <ThemeProvider>
-          {children}
+          <ClientLayout>{children}</ClientLayout>
           <Analytics />
         </ThemeProvider>
       </body>

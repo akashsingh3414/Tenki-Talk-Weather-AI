@@ -6,14 +6,16 @@ export class HuggingFaceSTTProvider implements STTProvider {
     protected modelId: string;
     protected baseUrl: string;
 
-    constructor(modelId: string) {
+    constructor(modelId: string = "openai/whisper-large-v3") {
         this.modelId = modelId;
         this.apiKey = "";
         this.baseUrl = "/api/stt";
     }
 
     getName(): string {
-        return `HuggingFace (${this.modelId})`;
+        return this.modelId === "openai/whisper-large-v3"
+            ? "Whisper Large V3 (Global)"
+            : `HuggingFace (${this.modelId})`;
     }
 
     isSupported(): boolean {

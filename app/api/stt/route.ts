@@ -22,7 +22,6 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "HuggingFace API key is not configured" }, { status: 500 });
         }
 
-        // Use the hf-inference router path which is more reliable than direct api-inference
         const hfUrl = `https://router.huggingface.co/hf-inference/models/${modelId}`;
 
         console.log(`[STT Proxy] Sending request to: ${hfUrl}`);
@@ -55,10 +54,11 @@ export async function POST(req: NextRequest) {
         console.log(`[STT Proxy] Success: "${resultText.substring(0, 30)}..."`);
 
         return NextResponse.json({ text: resultText, isFinal: true });
-    } catch (error: any) {
-        console.error("[STT Proxy] Final Error:", error.message);
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : "Failed to transcribe audio via Cloud.";
+        console.error("[STT Proxy] Final Error:", message);
         return NextResponse.json(
-            { error: error.message || "Failed to transcribe audio via Cloud." },
+            { error: message },
             { status: 500 }
         );
     }

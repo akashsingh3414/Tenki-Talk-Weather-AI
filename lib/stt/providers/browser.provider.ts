@@ -64,7 +64,7 @@ export class BrowserSTTProvider implements STTProvider {
         }
     }
 
-    async transcribe(audio: Blob, options: STTOptions): Promise<STTResult | null> {
+    async transcribe(_audio: Blob, _options: STTOptions): Promise<STTResult | null> {
         return null;
     }
 }
