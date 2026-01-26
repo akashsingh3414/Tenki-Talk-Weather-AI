@@ -8,25 +8,38 @@ import { useTheme } from "@/components/theme_provider"
 import { i18n } from "@/lib/i18n"
 
 
-import { useContext } from "react";
-import { LanguageContext } from "@/lib/language_context";
+import Image from "next/image"
+import { useContext } from "react"
+import { LanguageContext } from "@/lib/language_context"
+import logo from "@/app/icon.png"
 
 export function Header() {
-  const { language, setLanguage } = useContext(LanguageContext);
+  const { language, setLanguage, triggerReset } = useContext(LanguageContext);
   const onLanguageChange = setLanguage;
-  const onHomeClick = () => window.location.reload();
+  const onHomeClick = triggerReset;
   const currentCity = "";
   const label = i18n[language].header
 
   return (
-    <header className="relative sticky z-[1000] overflow-visible bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white shadow-sm">
+    <header className="relative sticky z-[1000] overflow-visible bg-white dark:bg-slate-950 border-b border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white">
       <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
         <div className="hidden md:flex items-center justify-between gap-4 py-3 lg:py-4">
           <button
             onClick={onHomeClick}
-            className="text-lg lg:text-2xl font-bold transition-colors hover:cursor-pointer"
+            className="flex items-center gap-2 transition-all hover:opacity-80 active:scale-95"
           >
-            {label.title}
+            <div className="relative w-10 h-10 lg:w-12 lg:h-12 overflow-hidden rounded-xl bg-slate-100 dark:bg-slate-900 shadow-inner">
+              <Image
+                src={logo}
+                alt="Tenki Talk Logo"
+                fill
+                className="object-cover"
+                priority
+              />
+            </div>
+            <span className="text-lg lg:text-2xl font-bold tracking-tight">
+              {label.title}
+            </span>
           </button>
 
           <div className="flex-1 flex justify-center">
@@ -48,9 +61,20 @@ export function Header() {
           <div className="flex items-center justify-between py-3">
             <button
               onClick={onHomeClick}
-              className="text-base sm:text-lg font-bold hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              className="flex items-center gap-2.5 transition-all hover:opacity-80 active:scale-95"
             >
-              {label.title}
+              <div className="relative w-8 h-8 overflow-hidden rounded-lg bg-slate-100 dark:bg-slate-900 shadow-inner">
+                <Image
+                  src={logo}
+                  alt="Tenki Talk Logo"
+                  fill
+                  className="object-cover"
+                  priority
+                />
+              </div>
+              <span className="text-base sm:text-lg font-bold tracking-tight">
+                {label.title}
+              </span>
             </button>
 
             <div className="flex items-center gap-2">

@@ -3,7 +3,7 @@ export type Language = "ja-JP" | "en-US" | "hi-IN"
 export const i18n = {
     "ja-JP": {
         header: {
-            title: "天気トーク : 天気AI",
+            title: "天気トーク",
             placeholder: "都市名で天気を検索...",
             weather: "天気を取得",
         },
@@ -16,7 +16,7 @@ export const i18n = {
             ],
             noQuery: "今日の天気を表示しています。質問があればお気軽にどうぞ。",
             hero: {
-                title: "天気トーク: 天気を考慮したAI旅行プランナー",
+                title: "天気トーク: 天気に賢いAI旅行ガイド",
                 description:
                     "リアルタイムの天気に基づいて、旅行、外出、地元グルメの発見、最適な服装選びをサポートするAIガイドです。",
                 details: [
@@ -68,6 +68,11 @@ export const i18n = {
             places: "場所",
             stop: "停止",
             listening: "収音中...",
+            tripDuration: "旅行期間",
+            minDuration: "最小1日",
+            maxDuration: "最大5日",
+            day: "日",
+            days: "日",
         },
         citySelector: {
             selectCountry: "国を選択",
@@ -119,7 +124,7 @@ export const i18n = {
 
     "en-US": {
         header: {
-            title: "Tenki Talk : Weather AI",
+            title: "Tenki Talk",
             placeholder: "Search weather by city...",
             weather: "Get Weather",
         },
@@ -132,7 +137,7 @@ export const i18n = {
             ],
             noQuery: "Showing today's weather. Feel free to ask any questions.",
             hero: {
-                title: "Tenki Talk : Weather-Aware AI Travel Planner",
+                title: "Tenki Talk : Smart AI Weather & Travel Guide",
                 description:
                     "Your AI guide for planning trips, outings, discovering local food, and choosing the perfect outfit based on real-time weather.",
                 details: [
@@ -184,6 +189,11 @@ export const i18n = {
             places: "Places",
             stop: "Stop",
             listening: "Listening...",
+            tripDuration: "Trip Duration",
+            minDuration: "Min 1 day",
+            maxDuration: "Max 5 days",
+            day: "day",
+            days: "days",
         },
         citySelector: {
             selectCountry: "Select Country",
@@ -235,7 +245,7 @@ export const i18n = {
 
     "hi-IN": {
         header: {
-            title: "टेंकी टॉक : मौसम AI",
+            title: "टेंकी टॉक",
             placeholder: "शहर के नाम से मौसम खोजें...",
             weather: "मौसम प्राप्त करें",
         },
@@ -248,7 +258,7 @@ export const i18n = {
             ],
             noQuery: "आज का मौसम दिखाया जा रहा है। कोई भी सवाल पूछें।",
             hero: {
-                title: "टेंकी टॉक : मौसम-जागरूक AI यात्रा योजनाकार",
+                title: "टेंकी टॉक : स्मार्ट AI मौसम और यात्रा गाइड",
                 description:
                     "वास्तविक समय के मौसम के आधार पर यात्रा, बाहर जाने, स्थानीय भोजन और सही पोशाक चुनने में मदद करने वाला AI गाइड।",
                 details: [
@@ -300,6 +310,11 @@ export const i18n = {
             places: "स्थान",
             stop: "रुकें",
             listening: "सुन रहे हैं...",
+            tripDuration: "यात्रा की अवधि",
+            minDuration: "न्यूनतम 1 दिन",
+            maxDuration: "अधिकतम 5 दिन",
+            day: "दिन",
+            days: "दिन",
         },
         citySelector: {
             selectCountry: "देश चुनें",

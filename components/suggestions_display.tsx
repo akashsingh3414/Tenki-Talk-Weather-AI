@@ -16,7 +16,6 @@ const headerMap = {
 }
 
 export function SuggestionsDisplay({ suggestions, language }: SuggestionsDisplayProps) {
-  // Parse suggestions by category if structured
   const lines = suggestions.split("\n").filter((line) => line.trim())
 
   return (

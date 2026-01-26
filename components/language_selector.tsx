@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react"
 import { Button } from "@/components/ui/button"
-import { Globe, ChevronDown } from "lucide-react"
+import { ChevronDown, LanguagesIcon } from "lucide-react"
 
 type Language = "ja-JP" | "en-US" | "hi-IN"
 
@@ -41,9 +41,9 @@ export function LanguageSelector({
     >
       <Button
         variant="ghost"
-        className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm"
+        className="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700"
       >
-        <Globe className="mr-2 h-4 w-4 text-blue-600 dark:text-blue-400" />
+        <LanguagesIcon className="mr-2 h-4 w-4 text-blue-600 dark:text-blue-400" />
         <span className="text-sm font-medium">
           {languages.find(l => l.code === currentLanguage)?.nativeName}
         </span>

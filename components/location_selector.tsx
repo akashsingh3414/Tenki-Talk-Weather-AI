@@ -59,7 +59,7 @@ export function LocationSelector({
     loadingCountries,
     loadingCities,
     fetchCities
-  } = useGeoNames(language)
+  } = useGeoNames()
 
   const [showTooltip, setShowTooltip] = useState(false)
   const [countrySearch, setCountrySearch] = useState("")
@@ -100,7 +100,7 @@ export function LocationSelector({
   const currentCountryName = countries.find(c => c.countryCode === selectedCountry)?.countryName || ""
 
   return (
-    <div className="flex flex-col-reverse lg:flex-row gap-3 w-full z-1000">
+    <div className="flex lg:flex-row gap-3 w-full z-1000">
       <div className="relative w-full" ref={countryRef}>
         <div className="relative group">
           <input
@@ -132,7 +132,7 @@ export function LocationSelector({
         </div>
 
         {isCountryOpen && !loadingCountries && (
-          <div className="absolute bottom-full left-0 w-full mb-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl z-[1000] max-h-[300px] overflow-y-auto no-scrollbar animate-in fade-in slide-in-from-bottom-2">
+          <div className="absolute bottom-full left-0 w-full mb-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-2xl shadow-md z-[1000] max-h-[300px] overflow-y-auto no-scrollbar animate-in fade-in slide-in-from-bottom-2">
             {filteredCountries.length > 0 ? (
               <div className="p-2 py-1.5">
                 {filteredCountries.map((c) => (
@@ -201,12 +201,12 @@ export function LocationSelector({
         </Tooltip>
 
         {isCityOpen && !loadingCities && selectedCountry && (
-          <div className="absolute bottom-full left-0 w-full mb-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl z-[1000] max-h-[300px] overflow-y-auto no-scrollbar animate-in fade-in slide-in-from-bottom-2">
+          <div className="absolute bottom-full left-0 w-full mb-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-2xl shadow-md z-[1000] max-h-[300px] overflow-y-auto no-scrollbar animate-in fade-in slide-in-from-bottom-2">
             {filteredCities.length > 0 ? (
               <div className="p-2 py-1.5">
                 {filteredCities.map((city) => (
                   <button
-                    key={city.id}
+                    key={city.geoNameId}
                     onClick={() => {
                       onCityChange(city.name)
                       setCitySearch("")

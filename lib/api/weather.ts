@@ -1,4 +1,4 @@
-import { WeatherData } from "./ai/types";
+import { WeatherData } from "../ai/types";
 
 interface ForecastItem {
     dt_txt: string;
@@ -22,7 +22,7 @@ interface ForecastItem {
 }
 
 const weatherCache = new Map<string, { data: WeatherData; timestamp: number }>();
-const CACHE_TTL = 10 * 60 * 1000;
+const CACHE_TTL = 0.5 * 60 * 60 * 1000;
 
 const weatherTranslations: Record<string, Record<string, string>> = {
     "ja": {
@@ -112,10 +112,28 @@ export function getVisibilityLevel(visibilityMeters: number, language: string = 
     return langCode === "ja" ? "悪い" : langCode === "hi" ? "खराब" : "Poor";
 }
 
+async function fetchWithRetry(url: string, options: RequestInit = {}, retries = 3, backoff = 1000): Promise<Response> {
+    try {
+        const response = await fetch(url, {
+            ...options,
+            signal: AbortSignal.timeout(10000)
+        });
+        if (!response.ok && retries > 0 && response.status >= 500) {
+            throw new Error(`Server Error: ${response.status}`);
+        }
+        return response;
+    } catch (error) {
+        if (retries > 0) {
+            await new Promise(resolve => setTimeout(resolve, backoff));
+            return fetchWithRetry(url, options, retries - 1, backoff * 2);
+        }
+        throw error;
+    }
+}
+
 export async function fetchWeatherData(city: string, language: string = "en-US"): Promise<WeatherData | null> {
     const normalizedCity = city.toLowerCase().trim();
     const langCode = mapLanguageCode(language);
-    // Add version to cache key to invalidate old data structures
     const cacheKey = `${normalizedCity}_${langCode}_v2`;
 
     const cached = weatherCache.get(cacheKey);
@@ -130,7 +148,7 @@ export async function fetchWeatherData(city: string, language: string = "en-US")
     }
 
     try {
-        const weatherRes = await fetch(
+        const weatherRes = await fetchWithRetry(
             `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${apiKey}&units=metric&lang=${langCode}`
         );
 
@@ -141,7 +159,7 @@ export async function fetchWeatherData(city: string, language: string = "en-US")
 
         const weatherData = await weatherRes.json();
 
-        const forecastRes = await fetch(
+        const forecastRes = await fetchWithRetry(
             `https://api.openweathermap.org/data/2.5/forecast?q=${encodeURIComponent(city)}&appid=${apiKey}&units=metric&lang=${langCode}`
         );
 

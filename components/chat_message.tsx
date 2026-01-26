@@ -1,34 +1,12 @@
 "use client"
 
-import { MessageCircle, Cloud } from "lucide-react"
+import { User } from "lucide-react"
 import { type Language } from "@/lib/i18n"
 import ReactMarkdown from "react-markdown"
 import { TravelCard } from "@/components/travel_card"
-
-interface TravelPlace {
-  name: string
-  description: string
-  suitability: string
-  matchLabel: string
-  details: string
-  imageSearchQuery: string
-  website?: string
-  mapsUrl?: string
-}
-
-interface TravelJsonResponse {
-  explanation: string
-  places: TravelPlace[]
-  closing?: string
-}
-
-interface Message {
-  id: string
-  type: "user" | "ai"
-  content: string
-  timestamp: Date
-  travelPlans?: TravelJsonResponse
-}
+import Image from "next/image"
+import logo from "@/app/icon.png"
+import { Message } from "@/lib/types"
 
 interface ChatMessageProps {
   message: Message
@@ -45,17 +23,27 @@ export function ChatMessage({ message, language }: ChatMessageProps) {
           }`}
       >
         <div
-          className={`w-9 h-9 rounded-full flex items-center justify-center text-white shrink-0 ${isUser ? "bg-blue-500" : "bg-purple-500"
+          className={`w-9 h-9 rounded-full flex items-center justify-center text-white shrink-0 overflow-hidden ${isUser ? "bg-blue-500" : "bg-slate-100 dark:bg-slate-900 shadow-inner"
             }`}
         >
-          {isUser ? <MessageCircle size={18} /> : <Cloud size={18} />}
+          {isUser ? (
+            <User size={18} />
+          ) : (
+            <Image
+              src={logo}
+              alt="AI"
+              width={36}
+              height={36}
+              className="object-cover"
+            />
+          )}
         </div>
 
         <div className="flex flex-col gap-2 w-full overflow-hidden">
           <div
             className={`rounded-2xl px-6 py-4 shadow-sm border ${isUser
               ? "bg-blue-600 border-blue-500 text-white ml-auto"
-              : "bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100"
+              : "bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100"
               }`}
           >
             {isUser ? (

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export interface MessageEventHandler {
   (event: MessageEvent): void
@@ -8,6 +8,15 @@ export function useWorker(
   messageEventHandler: MessageEventHandler
 ): Worker | null {
   const [worker] = useState(() => createWorker(messageEventHandler))
+
+  useEffect(() => {
+    return () => {
+      if (worker) {
+        worker.terminate()
+      }
+    }
+  }, [worker])
+
   return worker
 }
 

@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { i18n, type Language } from "@/lib/i18n"
-import { getTempColor } from "@/lib/weather_colors"
+import { getTempColor, TempColorStyle } from "@/lib/weather_colors"
 import {
   Droplets,
   Wind,
@@ -11,7 +11,6 @@ import {
   Eye,
   Sunrise,
   Sunset,
-  ArrowDownToLine,
   Thermometer,
   Sun,
   CloudRain,
@@ -21,7 +20,7 @@ import {
   CloudDrizzle
 } from "lucide-react"
 
-import { WeatherData, Forecast } from "@/lib/ai/types"
+import { WeatherData, Forecast } from "@/lib/types"
 
 type WeatherDisplayLabels = typeof i18n["en-US"]["weatherDisplay"]
 
@@ -36,8 +35,6 @@ export function WeatherDisplay({ weatherData, language, isVertical = false }: We
   const { current, forecast } = weatherData || {}
   const currentStyle = getTempColor(current?.temp)
 
-  // Group forecast by date
-  /* eslint-disable react-hooks/exhaustive-deps */
   const groupedForecast = React.useMemo(() => {
     if (!forecast) return {}
     const groups: Record<string, Forecast[]> = {}
@@ -104,7 +101,7 @@ export function WeatherDisplay({ weatherData, language, isVertical = false }: We
     : null
 
   return (
-    <div className={`w-full gap-1 space-y-1.5 ${!isVertical ? "lg:h-full lg:flex lg:flex-col lg:gap-1.5 lg:space-y-0" : ""}`}>
+    <div className={`w-full gap-2 space-y-2 ${!isVertical ? "lg:h-full lg:flex lg:flex-col lg:gap-2 lg:space-y-0" : ""}`}>
       <div
         className={`${currentStyle.bg} border ${currentStyle.border} rounded-xl p-2 sm:p-2.5 shadow-lg transition-colors duration-500 h-full
           }`}
@@ -186,7 +183,7 @@ export function WeatherDisplay({ weatherData, language, isVertical = false }: We
         <div className={`bg-card border border-border rounded-xl p-1.5 sm:p-3 lg:p-1.5 flex flex-col h-full`}>
           <div className="flex items-center justify-between gap-1.5 px-2 pb-2">
             <span className="font-bold text-md">{labels.forecast}</span>
-            <span className="text-2xs lg:text-xs opacity-70">{labels.forecastHint}</span>
+            <span className="text-xs lg:text-sm opacity-70">{labels.forecastHint}</span>
           </div>
 
           <div className="flex items-center gap-2 mb-1.5 lg:mb-1.5 overflow-x-auto no-scrollbar pb-1">
@@ -208,7 +205,7 @@ export function WeatherDisplay({ weatherData, language, isVertical = false }: We
             className={`flex ${isVertical
               ? "flex-row overflow-x-auto no-scrollbar"
               : "flex-row overflow-x-auto snap-x snap-mandatory no-scrollbar lg:overflow-y-auto lg:flex-1"
-              } gap-1.5 pb-0.5 max-h-[80%]`}
+              } gap-1.5 pb-0.5`}
           >
             {!isVertical ? (
               Array.from({ length: Math.ceil(displayedForecast.length / 2) }).map((_, groupIdx) => (
@@ -259,7 +256,7 @@ function ForecastCard({ item, language, labels, isCompact = false }: { item: For
     : "--:--"
 
   return (
-    <div className={`max-h-[100%] ${itemStyle.bg} border ${itemStyle.border} rounded-lg ${isCompact ? "pt-1.5 pb-1.5 px-1.5 lg:pt-1.5 lg:pb-1.5 lg:px-1.5" : "p-1.5"} w-full h-full flex flex-col transition-all hover:scale-[1.02] active:scale-[0.98] overflow-hidden`}>
+    <div className={`${itemStyle.bg} border ${itemStyle.border} rounded-lg ${isCompact ? "pt-1.5 pb-1.5 px-1.5 lg:pt-1.5 lg:pb-1.5 lg:px-1.5" : "p-1.5"} w-full h-full flex flex-col transition-all hover:scale-[1.02] active:scale-[0.98] overflow-hidden`}>
       <div className={`${itemStyle.text} flex-shrink-0`}>
         <div className="flex justify-between items-start mb-0.5">
           <p className={`${isCompact ? "text-xs sm:text-sm lg:text-sm" : "text-sm"} font-bold opacity-80`}>{time}</p>
@@ -272,7 +269,9 @@ function ForecastCard({ item, language, labels, isCompact = false }: { item: For
             <WeatherConditionIcon condition={item.description} size={isCompact ? 20 : 28} />
             <p className={`${isCompact ? "text-sm sm:text-md lg:text-md" : "text-xl sm:text-xl"} font-black`}>{Math.round(item.temp)}°</p>
           </div>
-          <p className={`${isCompact ? "text-[10px] sm:text-xs lg:text-xs" : "text-sm sm:text-md"} font-bold capitalize opacity-90 leading-tight line-clamp-2 max-w-[120px]`}>{item.description}</p>
+          <div>
+            <p className={`${isCompact ? "text-[10px] sm:text-xs lg:text-xs" : "text-sm sm:text-md"} font-bold capitalize opacity-90 leading-tight line-clamp-2 max-w-[120px]`}>{item.description}</p>
+          </div>
         </div>
       </div>
 
@@ -324,12 +323,12 @@ function Stat({
   label: string;
   value: string;
   subtitle?: string;
-  style: any;
+  style: TempColorStyle;
   icon?: React.ReactNode;
 }) {
   return (
     <div className="bg-black/10 dark:bg-white/10 backdrop-blur-sm border border-white/10 rounded-lg p-2 flex flex-col items-start min-w-0 transition-all hover:bg-black/20 dark:hover:bg-white/20">
-      <div className={`flex items-center gap-1.5 mb-1 ${style.text}`}>
+      <div className={`flex items-center gap-1.5 mb-1`}>
         {icon && <span className="opacity-80">{icon}</span>}
         <p className="text-[9px] uppercase font-bold opacity-70 tracking-wider truncate">
           {label}

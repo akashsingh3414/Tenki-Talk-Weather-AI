@@ -2,7 +2,6 @@
 
 import * as React from "react"
 import { useRef } from "react"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Mic, Send, Square, Loader2, AlertTriangle, MapPin, Keyboard, Sparkles, Clock, Plus, Minus } from "lucide-react"
 import { i18n, type Language } from "@/lib/i18n"
@@ -125,7 +124,11 @@ export function ChatInput({
   }
 
   const toggleRecording = () => {
-    isRecording ? stopRecording() : startRecording()
+    if (isRecording) {
+      stopRecording()
+    } else {
+      startRecording()
+    }
   }
 
   const handleSubmit = () => {
@@ -158,7 +161,7 @@ export function ChatInput({
           title={!currentCity ? i18n[language].citySelector.selectCityTooltip : ""}
           placeholder={isRecording ? label.listening : placeholder}
           disabled={isLoading || isRecording}
-          className={`w-full h-11 text-sm px-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-none transition-all focus-visible:ring-0 ${isRecording ? "text-blue-500 font-medium" : ""
+          className={`w-full h-11 text-sm px-4 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 shadow-none transition-all focus-visible:ring-0 ${isRecording ? "text-blue-500 font-medium" : ""
             }`}
         />
 
@@ -183,7 +186,7 @@ export function ChatInput({
             <button
               onClick={onToggleLocations}
               title=""
-              className={`lg:hidden rounded-full h-10 w-10 border border-slate-200 dark:border-slate-800 transition-all flex items-center justify-center ${showLocations
+              className={`lg:hidden rounded-full h-10 w-10 border border-slate-300 dark:border-slate-800 transition-all flex items-center justify-center ${showLocations
                 ? "bg-blue-600 text-white border-blue-600 shadow-lg scale-110"
                 : "bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400"
                 }`}
@@ -223,11 +226,11 @@ export function ChatInput({
           >
             <button
               onClick={toggleRecording}
-              disabled={(isLoading && !isRecording)}
-              className={`rounded-full h-11 px-4 border border-slate-200 dark:border-slate-800 transition-all flex items-center justify-center gap-2 ${isRecording
+              disabled={!currentCity || (isLoading && !isRecording)}
+              className={`rounded-full h-11 px-4 border border-slate-300 dark:border-slate-800 transition-all flex items-center justify-center gap-2 ${isRecording
                 ? "animate-pulse shadow-lg scale-110 bg-red-500 text-white"
                 : "bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400"
-                } ${isLoading && !isRecording ? "cursor-not-allowed opacity-50" : ""}`}
+                } ${(!currentCity || (isLoading && !isRecording)) ? "cursor-not-allowed opacity-50" : ""}`}
             >
               {isRecording ? (
                 <>
@@ -243,19 +246,19 @@ export function ChatInput({
           </Tooltip>
 
           <Tooltip
-            content="Trip Duration"
+            content={label.tripDuration}
             visible={showDurationLabelTooltip && !showMinDurationTooltip && !showMaxDurationTooltip}
             onMouseEnter={() => setShowDurationLabelTooltip(true)}
             onMouseLeave={() => setShowDurationLabelTooltip(false)}
             variant="info"
           >
-            <div className="flex items-center bg-slate-100 dark:bg-slate-800 rounded-full h-11 px-1.5 border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow transition-all duration-200">
+            <div className="flex items-center bg-slate-100 dark:bg-slate-800 rounded-full h-11 px-1.5 border border-slate-300 dark:border-slate-700 shadow-sm hover:shadow transition-all duration-200">
               <div className="bg-white dark:bg-slate-900 rounded-full p-1.5 mr-1 ml-1 shadow-sm">
                 <Clock size={16} className="text-slate-600 dark:text-slate-400" />
               </div>
 
               <Tooltip
-                content="Min 1 day"
+                content={label.minDuration}
                 visible={showMinDurationTooltip}
                 variant="warning"
               >
@@ -278,7 +281,7 @@ export function ChatInput({
               </span>
 
               <Tooltip
-                content="Max 5 days"
+                content={label.maxDuration}
                 visible={showMaxDurationTooltip}
                 variant="warning"
               >
@@ -297,7 +300,7 @@ export function ChatInput({
               </Tooltip>
 
               <span className="text-xs text-slate-500 dark:text-slate-400 font-medium mr-1.5 ml-0.5">
-                day{duration !== 1 ? 's' : ''}
+                {duration === 1 ? label.day : label.days}
               </span>
             </div>
           </Tooltip>
@@ -315,7 +318,7 @@ export function ChatInput({
                 title=""
                 className={`rounded-full h-11 px-4 border transition-all flex items-center justify-center gap-2 ${showFamous
                   ? "bg-blue-800 text-white border-blue-800 shadow-lg scale-110"
-                  : "bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400"
+                  : "bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400"
                   }`}
               >
                 <Sparkles size={18} className={showFamous ? "animate-pulse" : ""} />

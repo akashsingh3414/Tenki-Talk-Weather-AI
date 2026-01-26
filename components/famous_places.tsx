@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { i18n, type Language } from "@/lib/i18n"
-import { MapPin } from "lucide-react"
+import { MapPin, ChevronLeft, ChevronRight } from "lucide-react"
 import { WeatherConditionIcon } from "./weather_display"
 import { getWeather } from "@/app/actions"
 
@@ -32,6 +32,14 @@ const PLACES: FamousPlace[] = [
     { city: "Mumbai", country: "India", countryCode: "IN" },
 ]
 
+type WeatherCacheEntry = {
+    data: Record<string, PlaceWeather>;
+    timestamp: number;
+};
+
+const famousWeatherCache = new Map<Language, WeatherCacheEntry>();
+const CACHE_TTL = 30 * 60 * 1000;
+
 export function FamousPlaces({
     language,
     onSelect
@@ -39,11 +47,37 @@ export function FamousPlaces({
     language: Language
     onSelect: (city: string, countryCode: string) => void
 }) {
-    const [weatherData, setWeatherData] = useState<Record<string, PlaceWeather>>({})
-    const [loading, setLoading] = useState(true)
+    const getCachedData = (lang: Language) => {
+        const cached = famousWeatherCache.get(lang);
+        if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+            return cached.data;
+        }
+        return null;
+    };
+
+    const [weatherData, setWeatherData] = useState<Record<string, PlaceWeather>>(getCachedData(language) || {})
+    const [loading, setLoading] = useState(!getCachedData(language))
+    const scrollRef = useRef<HTMLDivElement>(null)
     const t = i18n[language].famousPlaces
 
+    const scroll = (direction: "left" | "right") => {
+        if (scrollRef.current) {
+            const scrollAmount = scrollRef.current.offsetWidth
+            scrollRef.current.scrollBy({
+                left: direction === "left" ? -scrollAmount : scrollAmount,
+                behavior: "smooth"
+            })
+        }
+    }
+
     useEffect(() => {
+        const currentCached = getCachedData(language);
+        if (currentCached) {
+            setWeatherData(currentCached);
+            setLoading(false);
+            return;
+        }
+
         const fetchAllWeather = async () => {
             setLoading(true)
             setWeatherData({})
@@ -63,7 +97,12 @@ export function FamousPlaces({
                         }
                     } catch (_e) { }
                 }))
+
                 setWeatherData(results)
+                famousWeatherCache.set(language, {
+                    data: results,
+                    timestamp: Date.now()
+                });
             } catch (_err) {
             } finally {
                 setLoading(false)
@@ -74,19 +113,37 @@ export function FamousPlaces({
     }, [language])
 
     return (
-        <div className="w-full space-y-4 pt-4 pb-2">
-            <div className="flex items-center justify-between px-4 lg:px-0">
-                <h3 className="text-[13px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em] flex items-center gap-2">
+        <div className="w-full space-y-2 p-1 group/nav relative">
+            <div className="flex items-center justify-between px-2 lg:px-0">
+                <h3 className="text-[13px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em] flex items-center gap-1">
                     <MapPin className="w-3.5 h-3.5" />
                     {t.title}
                 </h3>
+
+                <div className="hidden md:flex items-center gap-1">
+                    <button
+                        onClick={() => scroll("left")}
+                        className="p-1.5 rounded-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-sm"
+                    >
+                        <ChevronLeft size={14} className="text-slate-600 dark:text-slate-400" />
+                    </button>
+                    <button
+                        onClick={() => scroll("right")}
+                        className="p-1.5 rounded-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-sm"
+                    >
+                        <ChevronRight size={14} className="text-slate-600 dark:text-slate-400" />
+                    </button>
+                </div>
             </div>
 
-            <div className="flex overflow-x-auto no-scrollbar gap-3 pb-2 -mx-4 px-4 lg:mx-0 lg:px-0 scroll-smooth">
+            <div
+                ref={scrollRef}
+                className="flex overflow-x-auto no-scrollbar gap-3 pb-2 -mx-4 px-4 lg:mx-0 lg:px-0 scroll-smooth"
+            >
                 {loading && Object.keys(weatherData).length === 0 ? (
                     <div className="flex gap-3">
-                        {[1, 2, 3, 4, 5].map((i) => (
-                            <div key={i} className="min-w-[140px] lg:min-w-[160px] h-[80px] bg-slate-100 dark:bg-slate-800/50 animate-pulse rounded-2xl border border-slate-200 dark:border-slate-800" />
+                        {[1, 2, 3, 4, 5, 6].map((i) => (
+                            <div key={i} className="min-w-[140px] lg:min-w-[160px] h-[80px] bg-slate-100 dark:bg-slate-800/50 animate-pulse rounded-2xl border border-slate-300 dark:border-slate-800" />
                         ))}
                     </div>
                 ) : (
@@ -100,7 +157,7 @@ export function FamousPlaces({
                             <button
                                 key={place.city}
                                 onClick={() => onSelect(place.city, place.countryCode)}
-                                className="flex-none w-[140px] lg:w-[160px] p-3 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800/80 rounded-2xl hover:border-blue-500/50 dark:hover:border-blue-400/50 hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-all text-left group active:scale-95 shadow-sm"
+                                className="flex-none w-[140px] lg:w-[160px] p-3 bg-white dark:bg-slate-900/50 border border-slate-300 dark:border-slate-800/80 rounded-2xl hover:border-blue-500/50 dark:hover:border-blue-400/50 hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-all text-left group active:scale-95 shadow-sm"
                             >
                                 <div className="flex flex-col gap-0.5">
                                     <div className="flex items-center justify-between">

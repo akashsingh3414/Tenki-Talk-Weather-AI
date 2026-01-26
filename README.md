@@ -1,59 +1,63 @@
 # 天気トーク (Tenki Talk)
 
-A multilingual weather-aware travel assistant with an AI-powered conversational interface, voice input support, and a vibrant, dynamic UI.
+A multilingual, weather-aware AI travel planner that creates personalized itineraries, recommends local spots, and suggests outfits based on real-time weather and multi-day forecasts.
 
-## Features
+---
 
-- **Travel-Niche Focus**: Specialized in weather-aware itineraries, outings, food, and activity planning.
-- **Multilingual Support**: English, Japanese (日本語), Hindi (हिन्दी).
-- **Voice Input**: Hybrid STT using Browser-native Speech Recognition and OpenAI Whisper.
-- **Mandatory UI Location Selection**: Ensures high-accuracy weather context by using explicit Country and City selectors.
-- **Vibrant Weather UI**: Dynamic temperature-based coloring and 2x2 forecast grid for desktop.
-- **Mobile Optimized**: Exclusive "Mode Switching" (Chat vs Location) and bottom-anchored controls for a premium mobile experience.
+## Why Tenki Talk?
 
-## Architecture
+Tenki Talk goes beyond generic travel suggestions by **actively using real-time and forecasted weather** to decide *what to do, when to do it, and what to wear*.
 
-### AI Models
+**What makes it different:**
 
-**Primary Model**
-- Model is defined via environment configuration.
-- Default: Meta Llama 3.2 3B Instruct (Hugging Face)
-- Optimized for fast inference, low latency, and structured JSON output.
-- Used for real-time conversational responses.
+* Weather-aware, time-sensitive itineraries
+* Smart multi-day trip planning (1–5 days)
+* Multilingual & culturally aware (English, 日本語, हिन्दी)
+* Voice-enabled input with intelligent fallbacks
+* Dynamic UI that adapts to temperature and device
 
-**Fallback Model(s)**
-- Fully configurable via environment variables.
-- Automatically activated when the primary model fails, times out, or hits rate limits.
-- Can be switched to any supported provider or model (e.g., Gemini, OpenAI, Anthropic, etc.) without code changes.
-- Ensures high availability and service continuity.
+---
 
-**Design**: Provider-agnostic interface enables seamless model switching and robust fallback logging.
+## Key Features
 
-### Speech Recognition
+* **Weather-Aware Planning**: Activities adapt to real-time and forecasted conditions
+* **Time-Sliced Forecast Intelligence**: Uses Morning, Day, Evening, and Night weather contexts
+* **Multi-Day Trips**: Automatically balances pacing and activity density
+* **Outfit Suggestions**: Weather-, climate-, and season-appropriate clothing advice
+* **Strict Travel Scope**: Only travel, dining, entertainment, and outing-related recommendations
 
-**Tier 1: Web Speech API**
-- Zero-latency local transcription for supported browsers (Chrome, Edge).
+---
 
-**Tier 2: Whisper Large V3 (Hugging Face / Worker)**
-- Universal browser compatibility (Firefox, Safari) and high accuracy for complex multilingual audio.
+## Tech Stack
 
-### Weather Data
-- **Source**: OpenWeatherMap API.
-- **Caching**: Intelligent in-memory caching for performance.
-- **Dynamic Themes**: Real-time theme generation based on ambient temperature.
+| Category       | Technology                                         |
+| -------------- | -------------------------------------------------- |
+| Framework      | Next.js 16 (App Router)                            |
+| UI             | React 19                                           |
+| Language       | TypeScript                                         |
+| Styling        | Tailwind CSS v4, Lucide Icons                      |
+| Animations     | Framer Motion                                      |
+| AI             | Hugging Face (Llama 3.2), Google Gemini (Fallback) |
+| Speech-to-Text | Web Speech API, OpenAI Whisper                     |
+| Weather        | OpenWeatherMap                                     |
+| Location       | GeoNames                                           |
 
-## Quick Start
+---
+
+## Getting Started
 
 ### Prerequisites
-- API keys for:
-  - Hugging Face (Inference API)
-  - Google AI (Gemini API)
-  - OpenWeatherMap
-  - GeoNames (for city search)
 
-### Configuration
+You’ll need API keys for:
 
-Create a `.env.local` file in the root directory:
+* Hugging Face
+* Google Gemini
+* OpenWeatherMap
+* GeoNames
+
+### Environment Setup
+
+Create a `.env.local` file:
 
 ```env
 GEMINI_API_KEY=your_google_ai_key
@@ -65,44 +69,35 @@ NEXT_PUBLIC_GEONAMES_USER=your_geonames_username
 ### Installation
 
 ```bash
-# Clone the repository
 git clone https://github.com/akashsingh3414/Tenki-Talk-Weather-AI
 cd Tenki-Talk-Weather-AI
-
-# Install dependencies
 npm install
-
-# Run Development Server
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+---
 
-## Project Structure
+## Example Usage
 
-```
-tenki-talk/
-├── app/
-│   ├── api/chat/         # AI logic with robust JSON parsing & fallbacks
-│   └── page.tsx          # Main layout with responsive mode-switching
-├── lib/
-│   ├── ai/               # AI provider abstractions (Gemini, Llama)
-│   ├── i18n.ts           # Centralized UI labels for JA, HI, EN
-│   └── weather.ts        # Modular weather API client
-└── components/
-    ├── weather_display/  # Dynamic, temperature-aware forecast UI
-    ├── location_selector/# Searchable Country/City selectors
-    ├── travel_card/      # Rich suggestion display with Maps integration
-    └── chat_input/       # Mode-aware mobile input with voice support
-```
+### 2-Day Trip Planning
 
-## Tech Stack
+**Input**: "I'm in Chennai for 2 days"
 
-| Category | Technology |
-| --- | --- |
-| Framework | Next.js 14 (App Router) |
-| AI Providers | Hugging Face, Google Generative AI |
-| STT | Web Speech API, OpenAI Whisper |
-| Styling | Vanilla CSS, Tailwind CSS, Lucide Icons |
-| Language | TypeScript |
-| UI/UX | Framer Motion (Animations), Responsive Stacked Layouts |
+**Output**:
+
+* Day 1: Morning temples, afternoon museums (heat-aware)
+* Day 2: Morning beach, evening sunset dining
+
+### Clothing Advice
+
+**Input**: "What should I wear in Delhi in January?"
+
+**Output**: Layered clothing, warm outerwear, walking-friendly shoes
+
+### Weather-Safe Dining
+
+**Input**: "Street food spots in monsoon Mumbai"
+
+**Output**: Covered markets and indoor food courts with safety tips
+
+---

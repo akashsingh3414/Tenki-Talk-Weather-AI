@@ -1,8 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from 'react'
-import { Language } from '@/lib/i18n'
-import { getGeoNamesCountries, getGeoNamesCities } from '@/app/actions'
+import { getCountries, getCities } from '@/app/actions'
 
 export interface GeoNamesCountry {
     countryCode: string
@@ -10,14 +9,14 @@ export interface GeoNamesCountry {
 }
 
 export interface GeoNamesCity {
-    id: string
+    geoNameId: string
     name: string
     lat?: string
     lng?: string
     countryCode?: string
 }
 
-export function useGeoNames(language: Language) {
+export function useGeoNames() {
     const [countries, setCountries] = useState<GeoNamesCountry[]>([])
     const [cities, setCities] = useState<GeoNamesCity[]>([])
     const [loadingCountries, setLoadingCountries] = useState(false)
@@ -28,9 +27,9 @@ export function useGeoNames(language: Language) {
         setLoadingCountries(true)
         setError(null)
         try {
-            const data = await getGeoNamesCountries()
+            const data = await getCountries()
             if (Array.isArray(data.geonames)) {
-                const sortedCountries = data.geonames.sort((a: any, b: any) =>
+                const sortedCountries = data.geonames.sort((a: GeoNamesCountry, b: GeoNamesCountry) =>
                     a.countryName.localeCompare(b.countryName)
                 )
                 setCountries(sortedCountries)
@@ -50,17 +49,17 @@ export function useGeoNames(language: Language) {
         setLoadingCities(true)
         setError(null)
         try {
-            const data = await getGeoNamesCities(countryCode)
+            const data = await getCities(countryCode)
             if (Array.isArray(data.geonames)) {
                 const processedCities = data.geonames
-                    .map((c: any) => ({
-                        id: String(c.geonameId),
+                    .map((c: GeoNamesCity) => ({
+                        geoNameId: c.geoNameId ? String(c.geoNameId) : `${c.name}-${c.lat}-${c.lng}`,
                         name: c.name,
                         lat: c.lat,
                         lng: c.lng,
                         countryCode: countryCode
                     }))
-                    .sort((a: any, b: any) => a.name.localeCompare(b.name))
+                    .sort((a: GeoNamesCity, b: GeoNamesCity) => a.name.localeCompare(b.name))
                 setCities(processedCities)
             }
         } catch (err) {

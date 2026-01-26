@@ -1,41 +1,24 @@
 "use client"
 
 import { useState, useRef, useEffect, useCallback, useContext } from "react"
-import { ChevronDown, ChevronUp, Cloud } from "lucide-react"
+import { ChevronDown, ChevronUp } from "lucide-react"
 import { useTranscriber } from "./hooks/useTranscriber"
-import { ChatMessage } from "@/components/chat_message"
-import { LocationSelector } from "@/components/location_selector"
 import { i18n } from "@/lib/i18n"
 import { WeatherDisplay } from "@/components/weather_display"
 import { ChatInput } from "@/components/chat_input"
 import { FamousPlaces } from "@/components/famous_places"
 import { useWeather } from "./hooks/useWeather"
 import { LanguageContext } from "@/lib/language_context"
+import { HeroSection } from "@/components/hero_section"
+import { ChatDisplay } from "@/components/chat_display"
+import { WeatherSidebar } from "@/components/weather_sidebar"
+import { LocationSelector } from "@/components/location_selector"
+import logo from "@/app/icon.png"
 
-interface Message {
-  id: string
-  type: "user" | "ai"
-  content: string
-  timestamp: Date
-  travelPlans?: TravelJsonResponse
-}
-
-interface TravelJsonResponse {
-  explanation: string
-  places: Array<{
-    name: string
-    description: string
-    suitability: string
-    matchLabel: string
-    details: string
-    imageSearchQuery: string
-    website?: string
-    mapsUrl?: string
-  }>
-}
+import { Message } from "@/lib/types"
 
 export default function Home() {
-  const { language } = useContext(LanguageContext)
+  const { language, resetTrigger } = useContext(LanguageContext)
   const [messages, setMessages] = useState<Message[]>([])
   const [started, setStarted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -45,8 +28,9 @@ export default function Home() {
   const [chatInput, setChatInput] = useState("")
   const [weatherOpen, setWeatherOpen] = useState(false)
   const [showLocations, setShowLocations] = useState(false)
-  const [showFamous, setShowFamous] = useState(true)
+  const [showFamous, setShowFamous] = useState(false)
   const [duration, setDuration] = useState(1)
+  const [welcomeIndex, setWelcomeIndex] = useState<number | null>(null)
 
   const {
     weatherData: currentWeather,
@@ -56,24 +40,55 @@ export default function Home() {
     setWeatherData: setCurrentWeather
   } = useWeather(language)
 
+  useEffect(() => {
+    if (resetTrigger > 0) {
+      setMessages([])
+      setStarted(false)
+      setIsLoading(false)
+      setChatError("")
+      setSelectedCountry("")
+      setSelectedCity("")
+      setChatInput("")
+      setWeatherOpen(false)
+      setShowLocations(false)
+      setShowFamous(false)
+      setCurrentWeather(null)
+      setWelcomeIndex(null)
+    }
+  }, [resetTrigger, setCurrentWeather])
+
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const labels = i18n[language].home
   const transcriber = useTranscriber()
 
   useEffect(() => {
     if (started && messages.length === 0) {
       const welcomeMessages = i18n[language].home.welcome
-      const randomWelcome = welcomeMessages[Math.floor(Math.random() * welcomeMessages.length)]
+      const index = Math.floor(Math.random() * welcomeMessages.length)
+      setWelcomeIndex(index)
       setMessages([
         {
           id: "0",
           type: "ai",
-          content: randomWelcome,
+          content: welcomeMessages[index],
           timestamp: new Date(),
         },
       ])
     }
   }, [started, messages.length, language])
+
+  useEffect(() => {
+    setMessages((prev) =>
+      prev.map((msg) => {
+        if (msg.id === "0" && welcomeIndex !== null) {
+          return { ...msg, content: i18n[language].home.welcome[welcomeIndex] }
+        }
+        if (msg.id.endsWith("-warning")) {
+          return { ...msg, content: i18n[language].citySelector.selectCityAIWarning }
+        }
+        return msg
+      })
+    )
+  }, [language, welcomeIndex])
 
   const handleSendMessage = useCallback(
     async (userMessage: string) => {
@@ -222,79 +237,40 @@ export default function Home() {
         <div className="flex-1 flex flex-col overflow-hidden border-r border-border/50 min-h-0">
           <div className="flex-1 overflow-y-auto px-4 md:px-6 lg:px-8 scroll-smooth min-h-0">
             {!started && messages.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center py-8">
-                <div className="w-full max-w-5xl space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <div className="text-center space-y-3">
-                    <h1 className="text-4xl lg:text-5xl font-black tracking-tight text-slate-900 dark:text-white">
-                      {labels.hero.title}
-                    </h1>
-                    <p className="text-lg lg:text-xl text-slate-500 dark:text-slate-400 max-w-3xl mx-auto leading-relaxed font-medium">
-                      {labels.hero.description}
-                    </p>
-                  </div>
-
-                  <div className="max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-3 pt-4">
-                    {labels.hero.details.map((detail, i) => (
-                      <div key={i} className="flex gap-3 text-lg text-slate-700 dark:text-slate-300 leading-relaxed animate-in fade-in slide-in-from-bottom-2 duration-700 delay-150 items-start">
-                        <span className="flex-none font-black text-blue-600 dark:text-blue-400 text-xl">
-                          {i + 1}
-                        </span>
-                        <p className="font-medium tracking-tight">{detail}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              <HeroSection hero={i18n[language].home.hero} logo={logo} />
             ) : (
-              <div className="space-y-6 py-6 max-w-5xl mx-auto">
-                {messages.map((m) => (
-                  <ChatMessage key={m.id} message={m} language={language} />
-                ))}
-                {isLoading && (
-                  <div className="flex justify-start mb-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                    <div className="flex gap-3 w-[90%] mx-auto flex-row">
-                      <div className="w-9 h-9 rounded-full flex items-center justify-center text-white shrink-0 bg-purple-500">
-                        <Cloud size={18} className="animate-pulse" />
-                      </div>
-                      <div className="rounded-2xl px-6 py-4 border bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 flex items-center gap-3">
-                        <div className="flex gap-1.5 order-2">
-                          <span className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-duration:0.8s] [animation-delay:-0.3s]"></span>
-                          <span className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-duration:0.8s] [animation-delay:-0.15s]"></span>
-                          <span className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-duration:0.8s]"></span>
-                        </div>
-                        <span className="text-sm tracking-tight order-1 opacity-70">
-                          {i18n[language].chatMessage.thinking}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                <div ref={messagesEndRef} />
-              </div>
+              <ChatDisplay
+                messages={messages}
+                isLoading={isLoading}
+                language={language}
+                messagesEndRef={messagesEndRef}
+                logo={logo}
+              />
             )}
           </div>
 
-          <div className="flex-none border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.05)]">
-            <div className="p-4 md:px-6 lg:px-8">
-              {showFamous && (
-                <div className="max-w-5xl mx-auto w-full mb-3 animate-in slide-in-from-bottom-2 duration-300">
-                  <FamousPlaces
-                    language={language}
-                    onSelect={handleFamousPlaceSelect}
-                  />
-                </div>
-              )}
-              <div className="flex flex-col-reverse lg:flex-row-reverse gap-3 max-w-5xl mx-auto w-full">
-                <div className="flex-1 min-w-0 w-full lg:flex-[1.5]">
+          <div className="flex-none p-4 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border-t border-slate-300 dark:border-slate-800">
+            {showFamous && messages.length === 0 && (
+              <div className="max-w-5xl mx-auto mb-6 animate-in slide-in-from-bottom-4 duration-500">
+                <FamousPlaces
+                  language={language}
+                  onSelect={handleFamousPlaceSelect}
+                />
+              </div>
+            )}
+
+            <div className="max-w-5xl mx-auto relative">
+              <div className="flex flex-col-reverse lg:flex-row-reverse gap-4 items-end">
+                <div className="flex-1 w-full lg:min-w-0">
                   <ChatInput
                     value={chatInput}
                     onChange={setChatInput}
                     onSendMessage={() => handleSendMessage(chatInput)}
-                    onAudioRecorded={handleAudioSubmit}
                     isLoading={isLoading}
+                    onAudioRecorded={handleAudioSubmit}
                     language={language}
                     transcriber={transcriber}
-                    currentCity={currentWeather?.current?.city || selectedCity}
+                    currentCity={selectedCity}
                     showLocations={showLocations}
                     onToggleLocations={() => setShowLocations(!showLocations)}
                     showFamous={showFamous}
@@ -304,38 +280,34 @@ export default function Home() {
                   />
                 </div>
 
-                <div className={`w-full lg:w-auto lg:flex-[1] lg:max-w-[380px] ${showLocations ? "block" : "hidden lg:block"} animate-in fade-in slide-in-from-bottom-2 duration-300`}>
-                  <LocationSelector
-                    language={language}
-                    selectedCountry={selectedCountry}
-                    selectedCity={selectedCity}
-                    onCountryChange={(country) => {
-                      setSelectedCountry(country)
-                      setSelectedCity("")
-                      setCurrentWeather(null)
-                    }}
-                    onCityChange={(city) => {
-                      setSelectedCity(city)
-                      handleLocationSelect(city)
-                    }}
-                    disabled={isLoading || weatherLoading}
-                  />
+                <div className={`w-full lg:w-72 xl:w-80 flex-none ${showLocations ? "block" : "hidden lg:block"}`}>
+                  <div className="backdrop-blur-md rounded-2xl border-none lg:p-0 p-4 shadow-sm lg:shadow-none animate-in fade-in slide-in-from-bottom-2 duration-300">
+                    <LocationSelector
+                      language={language}
+                      selectedCountry={selectedCountry}
+                      selectedCity={selectedCity}
+                      onCountryChange={(country: string) => {
+                        setSelectedCountry(country)
+                        setSelectedCity("")
+                        setCurrentWeather(null)
+                      }}
+                      onCityChange={(city: string) => {
+                        setSelectedCity(city)
+                        handleLocationSelect(city)
+                        if (window.innerWidth < 1024) {
+                          setShowLocations(false)
+                        }
+                      }}
+                      disabled={isLoading || weatherLoading}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {currentWeather && currentWeather.current && (
-          <div className="hidden lg:flex flex-none w-[420px] h-full bg-blue-50/50 dark:bg-slate-900 border-l border-blue-100 dark:border-slate-800 overflow-hidden">
-            <div className="p-5 w-full min-h-full flex flex-col">
-              <WeatherDisplay
-                weatherData={currentWeather}
-                language={language}
-              />
-            </div>
-          </div>
-        )}
+        <WeatherSidebar weatherData={currentWeather} language={language} />
       </div>
     </div>
   )

@@ -6,10 +6,14 @@ import { ChevronDown, ChevronUp, MapPin, Sparkles, Info, Globe } from "lucide-re
 import { i18n, type Language } from "@/lib/i18n"
 
 interface TravelPlace {
+    day?: number
+    timeOfDay?: "Morning" | "Afternoon" | "Evening"
     name: string
     description: string
     suitability: string
-    matchLabel: string
+    weatherMatch: string
+    visitDuration?: string
+    travelTip?: string
     details: string
     imageSearchQuery: string
     website?: string
@@ -33,11 +37,20 @@ export function TravelCard({ place, language }: TravelCardProps) {
                         <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
                             <MapPin className="w-4 h-4" />
                         </div>
-                        <h4 className="font-bold text-lg text-foreground">{place.name}</h4>
+                        <div>
+                            <h4 className="font-bold text-lg text-foreground">{place.name}</h4>
+                            {(place.day || place.timeOfDay) && (
+                                <p className="text-xs text-muted-foreground">
+                                    {place.day && `Day ${place.day}`}
+                                    {place.day && place.timeOfDay && " • "}
+                                    {place.timeOfDay && `${place.timeOfDay}`}
+                                </p>
+                            )}
+                        </div>
                     </div>
                     <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-full text-[10px] font-bold uppercase tracking-wider border border-emerald-500/20">
                         <Sparkles className="w-3 h-3" />
-                        {place.matchLabel}
+                        {place.weatherMatch}
                     </div>
                 </div>
 
@@ -71,6 +84,38 @@ export function TravelCard({ place, language }: TravelCardProps) {
 
                 {isExpanded && (
                     <div className="mt-4 pt-4 border-t border-border space-y-5 animate-in slide-in-from-top-2 duration-300">
+                        {place.visitDuration && (
+                            <div className="flex gap-3">
+                                <div className="flex-shrink-0 w-5 h-5 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-600">
+                                    <Info className="w-3 h-3" />
+                                </div>
+                                <div className="space-y-1">
+                                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                                        Duration
+                                    </p>
+                                    <p className="text-sm text-foreground">
+                                        {place.visitDuration}
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+
+                        {place.travelTip && (
+                            <div className="flex gap-3">
+                                <div className="flex-shrink-0 w-5 h-5 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-600">
+                                    <Info className="w-3 h-3" />
+                                </div>
+                                <div className="space-y-1">
+                                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                                        Travel Tip
+                                    </p>
+                                    <p className="text-sm text-foreground">
+                                        {place.travelTip}
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+
                         <div className="flex gap-3">
                             <div className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-600">
                                 <Info className="w-3 h-3" />
