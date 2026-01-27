@@ -235,7 +235,7 @@ export default function Home() {
 
       <div className="flex-1 flex overflow-hidden min-h-0">
         <div className="flex-1 flex flex-col overflow-hidden border-r border-border/50 min-h-0">
-          <div className="flex-1 overflow-y-auto px-4 md:px-6 lg:px-8 scroll-smooth min-h-0">
+          <div className="flex-1 overflow-y-auto px-2 sm:px-4 md:px-6 lg:px-8 scroll-smooth min-h-0 pb-0">
             {!started && messages.length === 0 ? (
               <HeroSection hero={i18n[language].home.hero} logo={logo} />
             ) : (
@@ -249,9 +249,9 @@ export default function Home() {
             )}
           </div>
 
-          <div className="flex-none p-4 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border-t border-slate-300 dark:border-slate-800">
-            {showFamous && messages.length === 0 && (
-              <div className="max-w-5xl mx-auto mb-6 animate-in slide-in-from-bottom-4 duration-500">
+          <div className="flex-none bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border-t border-slate-300 dark:border-slate-800 px-2 sm:px-4 py-2 sm:py-4">
+            {showFamous && (
+              <div className="max-w-5xl mx-auto mb-2 sm:mb-3 animate-in slide-in-from-bottom-4 duration-500">
                 <FamousPlaces
                   language={language}
                   onSelect={handleFamousPlaceSelect}
@@ -260,7 +260,7 @@ export default function Home() {
             )}
 
             <div className="max-w-5xl mx-auto relative">
-              <div className="flex flex-col-reverse lg:flex-row-reverse gap-4 items-end">
+              <div className="flex flex-col-reverse lg:flex-row-reverse gap-2 sm:gap-3 items-end">
                 <div className="flex-1 w-full lg:min-w-0">
                   <ChatInput
                     value={chatInput}
@@ -281,7 +281,7 @@ export default function Home() {
                 </div>
 
                 <div className={`w-full lg:w-72 xl:w-80 flex-none ${showLocations ? "block" : "hidden lg:block"}`}>
-                  <div className="backdrop-blur-md rounded-2xl border-none lg:p-0 p-4 shadow-sm lg:shadow-none animate-in fade-in slide-in-from-bottom-2 duration-300">
+                  <div className="backdrop-blur-md rounded-2xl border-none lg:p-0 p-2 shadow-sm lg:shadow-none animate-in fade-in slide-in-from-bottom-2 duration-300">
                     <LocationSelector
                       language={language}
                       selectedCountry={selectedCountry}
@@ -293,8 +293,8 @@ export default function Home() {
                       }}
                       onCityChange={(city: string) => {
                         setSelectedCity(city)
-                        handleLocationSelect(city)
-                        if (window.innerWidth < 1024) {
+                        if (city) {
+                          handleLocationSelect(city)
                           setShowLocations(false)
                         }
                       }}

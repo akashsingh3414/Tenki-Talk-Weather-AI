@@ -5,7 +5,7 @@ import { Header } from "@/components/header"
 
 function ClientLayoutContent({ children }: { children: React.ReactNode }) {
     return (
-        <div className="h-screen flex flex-col overflow-hidden bg-white dark:bg-slate-950">
+        <div className="h-dvh flex flex-col overflow-hidden bg-white dark:bg-slate-950">
             <Header />
             {children}
         </div>

@@ -73,6 +73,7 @@ export const i18n = {
             maxDuration: "最大5日",
             day: "日",
             days: "日",
+            voiceInput: "音声入力",
         },
         citySelector: {
             selectCountry: "国を選択",
@@ -194,6 +195,7 @@ export const i18n = {
             maxDuration: "Max 5 days",
             day: "day",
             days: "days",
+            voiceInput: "Voice Input",
         },
         citySelector: {
             selectCountry: "Select Country",
@@ -315,6 +317,7 @@ export const i18n = {
             maxDuration: "अधिकतम 5 दिन",
             day: "दिन",
             days: "दिन",
+            voiceInput: "वॉयस इनपुट",
         },
         citySelector: {
             selectCountry: "देश चुनें",

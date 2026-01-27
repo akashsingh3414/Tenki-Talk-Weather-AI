@@ -33,7 +33,7 @@ function Tooltip({
     >
       {children}
       {visible && (
-        <div className="absolute bottom-full mb-3 flex flex-col items-center animate-in fade-in slide-in-from-bottom-2 duration-200 pointer-events-none z-50">
+        <div className="absolute bottom-full mb-3 flex flex-col items-center animate-in fade-in slide-in-from-bottom-2 duration-200 pointer-events-none z-[9999]">
           <div className="bg-slate-900/95 dark:bg-slate-800/98 backdrop-blur-xl text-white text-[13px] py-2.5 px-4 rounded-xl whitespace-nowrap shadow-2xl border border-white/20 font-medium flex items-center gap-2 ring-1 ring-black/5">
             <AlertTriangle size={14} className="text-amber-400" />
             {content}
@@ -84,6 +84,15 @@ export function LocationSelector({
     document.addEventListener("mousedown", handleClickOutside)
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
+
+  useEffect(() => {
+    if (showTooltip) {
+      const timer = setTimeout(() => {
+        setShowTooltip(false)
+      }, 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [showTooltip])
 
   useEffect(() => {
     fetchCities(selectedCountry)
