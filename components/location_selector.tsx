@@ -1,7 +1,10 @@
-import React, { useEffect, useState, useRef } from "react"
-import { ChevronDown, MapPin, Loader2, AlertTriangle, Check, Search } from "lucide-react"
-import { i18n, type Language } from "@/lib/i18n"
+import { useEffect, useState, useRef } from "react"
+import { ChevronDown, MapPin, Loader2, Check, Search } from "lucide-react"
+import { type Language } from "@/lib/i18n"
+import { LanguageContext } from "@/lib/language_context"
 import { useGeoNames } from "@/app/hooks/useGeoNames"
+import { useContext } from "react"
+import { Tooltip } from "@/components/ui/tooltip"
 
 interface LocationSelectorProps {
   language: Language
@@ -10,39 +13,6 @@ interface LocationSelectorProps {
   onCountryChange: (code: string) => void
   onCityChange: (name: string) => void
   disabled?: boolean
-}
-
-function Tooltip({
-  children,
-  content,
-  visible,
-  onMouseEnter,
-  onMouseLeave
-}: {
-  children: React.ReactNode,
-  content: string,
-  visible: boolean,
-  onMouseEnter?: () => void,
-  onMouseLeave?: () => void
-}) {
-  return (
-    <div
-      className="relative flex flex-col items-center group w-full"
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
-    >
-      {children}
-      {visible && (
-        <div className="absolute bottom-full mb-3 flex flex-col items-center animate-in fade-in slide-in-from-bottom-2 duration-200 pointer-events-none z-[9999]">
-          <div className="bg-slate-900/95 dark:bg-slate-800/98 backdrop-blur-xl text-white text-[13px] py-2.5 px-4 rounded-xl whitespace-nowrap shadow-2xl border border-white/20 font-medium flex items-center gap-2 ring-1 ring-black/5">
-            <AlertTriangle size={14} className="text-amber-400" />
-            {content}
-          </div>
-          <div className="w-3 h-3 bg-slate-900/95 dark:bg-slate-800/98 rotate-45 -mt-1.5 border-r border-b border-white/20" />
-        </div>
-      )}
-    </div>
-  )
 }
 
 export function LocationSelector({
@@ -70,7 +40,8 @@ export function LocationSelector({
   const countryRef = useRef<HTMLDivElement>(null)
   const cityRef = useRef<HTMLDivElement>(null)
 
-  const t = i18n[language].citySelector
+  const { dictionary } = useContext(LanguageContext)
+  const t = dictionary.citySelector
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -109,7 +80,7 @@ export function LocationSelector({
   const currentCountryName = countries.find(c => c.countryCode === selectedCountry)?.countryName || ""
 
   return (
-    <div className="flex lg:flex-row gap-3 w-full z-1000">
+    <div className="flex lg:flex-row gap-3 w-full z-[1000]">
       <div className="relative w-full" ref={countryRef}>
         <div className="relative group">
           <input
@@ -173,10 +144,12 @@ export function LocationSelector({
         <Tooltip
           content={t.selectCountryFirst}
           visible={showTooltip && !selectedCountry}
-          onMouseEnter={() => setShowTooltip(true)}
-          onMouseLeave={() => setShowTooltip(false)}
         >
-          <div className="relative group w-full">
+          <div
+            className="group w-full relative"
+            onMouseEnter={() => setShowTooltip(true)}
+            onMouseLeave={() => setShowTooltip(false)}
+          >
             <input
               type="text"
               className={`w-full h-12 pl-10 pr-10 bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-sm placeholder:text-slate-400 focus:ring-2 focus:ring-blue-600 outline-none shadow-sm transition-all text-slate-900 dark:text-white ${!selectedCountry ? "cursor-not-allowed opacity-60" : ""

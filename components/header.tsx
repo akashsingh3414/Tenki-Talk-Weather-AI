@@ -5,20 +5,17 @@ import { Sun, Moon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { LanguageSelector } from "@/components/language_selector"
 import { useTheme } from "@/components/theme_provider"
-import { i18n } from "@/lib/i18n"
-
-
 import Image from "next/image"
 import { useContext } from "react"
 import { LanguageContext } from "@/lib/language_context"
 import logo from "@/app/icon.png"
 
 export function Header() {
-  const { language, setLanguage, triggerReset } = useContext(LanguageContext);
+  const { language, setLanguage, triggerReset, dictionary } = useContext(LanguageContext);
   const onLanguageChange = setLanguage;
   const onHomeClick = triggerReset;
   const currentCity = "";
-  const label = i18n[language].header
+  const label = dictionary.header
 
   return (
     <header className="relative sticky z-[1000] overflow-visible bg-white dark:bg-slate-950 border-b border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white">
@@ -28,7 +25,7 @@ export function Header() {
             onClick={onHomeClick}
             className="flex items-center gap-2 transition-all hover:opacity-80 active:scale-95"
           >
-            <div className="relative w-10 h-10 lg:w-12 lg:h-12 overflow-hidden rounded-xl bg-slate-100 dark:bg-slate-900 shadow-inner">
+            <div className="relative w-10 h-10 lg:w-12 lg:h-12 overflow-hidden rounded-xl bg-slate-100 dark:bg-slate-900 shadow-inner animate-float">
               <Image
                 src={logo}
                 alt="Tenki Talk Logo"
@@ -63,7 +60,7 @@ export function Header() {
               onClick={onHomeClick}
               className="flex items-center gap-2.5 transition-all hover:opacity-80 active:scale-95"
             >
-              <div className="relative w-8 h-8 overflow-hidden rounded-lg bg-slate-100 dark:bg-slate-900 shadow-inner">
+              <div className="relative w-8 h-8 overflow-hidden rounded-lg bg-slate-100 dark:bg-slate-900 shadow-inner animate-float">
                 <Image
                   src={logo}
                   alt="Tenki Talk Logo"

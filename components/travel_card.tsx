@@ -1,9 +1,10 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useContext } from "react"
+import { LanguageContext } from "@/lib/language_context"
 import { Card } from "@/components/ui/card"
 import { ChevronDown, ChevronUp, MapPin, Sparkles, Info, Globe } from "lucide-react"
-import { i18n, type Language } from "@/lib/i18n"
+import { type Language } from "@/lib/i18n"
 
 interface TravelPlace {
     day?: number
@@ -26,8 +27,9 @@ interface TravelCardProps {
 }
 
 export function TravelCard({ place, language }: TravelCardProps) {
+    const { dictionary } = useContext(LanguageContext)
     const [isExpanded, setIsExpanded] = useState(false)
-    const labels = i18n[language]?.travelCard || i18n["en-US"].travelCard
+    const labels = dictionary.travelCard
 
     return (
         <Card className="overflow-hidden border border-border bg-card hover:shadow-lg transition-all duration-300">
@@ -91,7 +93,7 @@ export function TravelCard({ place, language }: TravelCardProps) {
                                 </div>
                                 <div className="space-y-1">
                                     <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-                                        Duration
+                                        {labels.duration}
                                     </p>
                                     <p className="text-sm text-foreground">
                                         {place.visitDuration}
@@ -107,7 +109,7 @@ export function TravelCard({ place, language }: TravelCardProps) {
                                 </div>
                                 <div className="space-y-1">
                                     <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-                                        Travel Tip
+                                        {labels.travelTip}
                                     </p>
                                     <p className="text-sm text-foreground">
                                         {place.travelTip}

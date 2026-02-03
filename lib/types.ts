@@ -36,12 +36,15 @@ export interface TravelJsonResponse {
     closing?: string
 }
 
+import { Language } from "@/lib/i18n"
+
 export interface Message {
     id: string
     type: "user" | "ai"
     content: string
     timestamp: Date
     travelPlans?: TravelJsonResponse
+    language?: Language
 }
 
 export interface Forecast {
@@ -57,27 +60,29 @@ export interface Forecast {
 }
 
 export interface WeatherData {
-    current?: {
-        temp: number;
-        feels_like: number;
-        humidity: number;
-        pressure: number;
-        description: string;
-        details: string;
-        wind_speed: number;
-        clouds: number;
-        visibility: number;
-        city: string;
-        country: string;
-        uvi: number | null;
-        sunrise?: number;
-        sunset?: number;
-        sea_level?: number;
-        grnd_level?: number;
-        wind_deg?: number;
-        dt?: number;
-    };
+    current?: CurrentWeather;
     forecast?: Forecast[];
+}
+
+export interface CurrentWeather {
+    temp: number;
+    feels_like: number;
+    humidity: number;
+    pressure: number;
+    description: string;
+    details: string;
+    wind_speed: number;
+    clouds: number;
+    visibility: number;
+    city: string;
+    country: string;
+    uvi: number | null;
+    sunrise?: number;
+    sunset?: number;
+    sea_level?: number;
+    grnd_level?: number;
+    wind_deg?: number;
+    dt?: number;
 }
 
 export type IntentType =

@@ -24,7 +24,7 @@ Return ONLY JSON array of intents, e.g.,
         );
     }
 
-    private static getForecastSummary(weatherData: WeatherData, duration: number): string {
+    private static getForecastSummary(weatherData: WeatherData, duration: number, language: string): string {
         if (duration <= 0 || !weatherData.forecast || weatherData.forecast.length === 0) {
             return "";
         }
@@ -53,11 +53,17 @@ Return ONLY JSON array of intents, e.g.,
             const eveningItem = findItemAtHour(18) || dayItems[Math.max(0, dayItems.length - 2)];
             const nightItem = findItemAtHour(21) || dayItems[dayItems.length - 1];
 
+            const labels = language === "ja-JP"
+                ? { morning: "朝", day: "昼", evening: "夕方", night: "夜" }
+                : language === "hi-IN"
+                    ? { morning: "सुबह", day: "दोपहर", evening: "शाम", night: "रात" }
+                    : { morning: "Morning", day: "Day", evening: "Evening", night: "Night" };
+
             const points = [
-                { label: "Morning", item: morningItem },
-                { label: "Day", item: dayItem },
-                { label: "Evening", item: eveningItem },
-                { label: "Night", item: nightItem }
+                { label: labels.morning, item: morningItem },
+                { label: labels.day, item: dayItem },
+                { label: labels.evening, item: eveningItem },
+                { label: labels.night, item: nightItem }
             ].filter(p => p.item);
 
             const uniquePoints = points.filter((p, index, self) =>
@@ -125,11 +131,19 @@ Focus on iconic heritage sites, structural marvels, and natural attractions that
 
         const sunriseTime = this.formatTime(current?.sunrise, language);
         const sunsetTime = this.formatTime(current?.sunset, language);
-        const forecastSummary = this.getForecastSummary(weatherData, duration);
+        const forecastSummary = this.getForecastSummary(weatherData, duration, language);
         const categoryGuidance = this.getCategoryGuidance(message, city, duration);
 
         return `
 You are an expert AI Travel Planner specialized in Weather-Aware Itineraries, Outings, Dining, and Clothing advice.
+
+STRICT CONTENT RULES:
+- NO EMOJIS: Do NOT use any emojis, icons, or pictorial symbols in ANY part of your response.
+- STRICT LANGUAGE: You MUST respond EXACTLY and EXCLUSIVELY in the requested language: ${language}.
+- DO NOT use English or any other language unless it is a proper noun that has no translation.
+- If the language is ${language}, even the terminology for "feels like", "humidity", etc., in your explanation MUST be in ${language}.
+- DO NOT mix languages.
+- Make sure all letters, words, texts are in ${language}.
 
 CORE EXPERTISE:
 1. WEATHER-CENTRIC TRAVEL: Suggesting detailed, weather-appropriate trip plans, sightseeing, historical monuments, and architectural marvels.
@@ -142,13 +156,13 @@ CURRENT TRIP DURATION: ${duration} Day(s)
 CURRENT CITY: ${city}
 
 DETAILED WEATHER CONTEXT:
-- Temperature: ${current?.temp}°C (Feels like: ${current?.feels_like}°C)
-- Conditions: ${current?.description}
-- Visibility: ${visibilityKm}km (${visibilityLevel})
-- Humidity: ${current?.humidity}%
-- Wind Speed: ${current?.wind_speed} m/s
-- Cloud Cover: ${current?.clouds}%
-- Sunrise: ${sunriseTime} | Sunset: ${sunsetTime}
+- ${language === "ja-JP" ? "気温" : language === "hi-IN" ? "तापमान" : "Temperature"}: ${current?.temp}°C (${language === "ja-JP" ? "体感" : language === "hi-IN" ? "अनुभव" : "Feels like"}: ${current?.feels_like}°C)
+- ${language === "ja-JP" ? "状態" : language === "hi-IN" ? "स्थिति" : "Conditions"}: ${current?.description}
+- ${language === "ja-JP" ? "視程" : language === "hi-IN" ? "दृश्यता" : "Visibility"}: ${visibilityKm}km (${visibilityLevel})
+- ${language === "ja-JP" ? "湿度" : language === "hi-IN" ? "आर्द्रता" : "Humidity"}: ${current?.humidity}%
+- ${language === "ja-JP" ? "風速" : language === "hi-IN" ? "हवा की गति" : "Wind Speed"}: ${current?.wind_speed} m/s
+- ${language === "ja-JP" ? "雲量" : language === "hi-IN" ? "बादल" : "Cloud Cover"}: ${current?.clouds}%
+- ${language === "ja-JP" ? "日の出" : language === "hi-IN" ? "सूर्योदय" : "Sunrise"}: ${sunriseTime} | ${language === "ja-JP" ? "日の入り" : language === "hi-IN" ? "सूर्यास्त" : "Sunset"}: ${sunsetTime}
 - Pressure: ${current?.pressure} hPa
 ${forecastSummary}
 
@@ -271,7 +285,7 @@ RULES:
 4. RETURN ONLY A RAW JSON OBJECT. No markdown, no backticks, no preamble.
 5. JSON STRUCTURE:
 {
-  "explanation": "A detailed (5-6 sentence) weather & climate-aware introduction for ${city} in ${language} for a ${duration}-day trip. MUST mention: current weather (temperature ${current?.temp}°C, humidity ${current?.humidity}%, conditions: ${current?.description}), current season, and climate type. Explain how weather/season/climate affect activities and why recommendations are ideal. Create a DAY-BY-DAY itinerary outline (e.g., 'Day 1: Museums and indoor activities, Day 2: Outdoor sightseeing'). Mention seasonal patterns, best timing based on sunrise/sunset (${sunriseTime} to ${sunsetTime}), and climate-appropriate activities for this duration.",
+  "explanation": "A detailed (5-6 sentence) weather & climate-aware introduction for ${city} in ${language} for a ${duration}-day trip. STRICT RULE: DO NOT include any meta-references to the chosen language, the prompt instructions, or phrase like 'Here is your introduction in...' or 'Based on your request for...'. Start directly with the weather summary. MUST mention: current weather (temperature ${current?.temp}°C, humidity ${current?.humidity}%, conditions: ${current?.description}), current season, and climate type. Explain how weather/season/climate affect activities and why recommendations are ideal. Create a DAY-BY-DAY itinerary outline (e.g., 'Day 1: Museums and indoor activities, Day 2: Outdoor sightseeing'). Mention seasonal patterns, best timing based on sunrise/sunset (${sunriseTime} to ${sunsetTime}), and climate-appropriate activities for this duration.",
   "places": [
     {
       "day": 1,

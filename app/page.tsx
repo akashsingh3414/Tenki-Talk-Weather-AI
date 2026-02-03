@@ -2,8 +2,8 @@
 
 import { useState, useRef, useEffect, useCallback, useContext } from "react"
 import { ChevronDown, ChevronUp } from "lucide-react"
+import { type Language } from "@/lib/i18n"
 import { useTranscriber } from "./hooks/useTranscriber"
-import { i18n } from "@/lib/i18n"
 import { WeatherDisplay } from "@/components/weather_display"
 import { ChatInput } from "@/components/chat_input"
 import { FamousPlaces } from "@/components/famous_places"
@@ -14,11 +14,11 @@ import { ChatDisplay } from "@/components/chat_display"
 import { WeatherSidebar } from "@/components/weather_sidebar"
 import { LocationSelector } from "@/components/location_selector"
 import logo from "@/app/icon.png"
-
 import { Message } from "@/lib/types"
+import { useLanguageDetection } from "./hooks/useLanguageDetection"
 
 export default function Home() {
-  const { language, resetTrigger } = useContext(LanguageContext)
+  const { language, resetTrigger, dictionary } = useContext(LanguageContext)
   const [messages, setMessages] = useState<Message[]>([])
   const [started, setStarted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -31,6 +31,7 @@ export default function Home() {
   const [showFamous, setShowFamous] = useState(false)
   const [duration, setDuration] = useState(1)
   const [welcomeIndex, setWelcomeIndex] = useState<number | null>(null)
+  const { detectLanguage } = useLanguageDetection()
 
   const {
     weatherData: currentWeather,
@@ -62,7 +63,7 @@ export default function Home() {
 
   useEffect(() => {
     if (started && messages.length === 0) {
-      const welcomeMessages = i18n[language].home.welcome
+      const welcomeMessages = dictionary.home.welcome
       const index = Math.floor(Math.random() * welcomeMessages.length)
       setWelcomeIndex(index)
       setMessages([
@@ -74,30 +75,30 @@ export default function Home() {
         },
       ])
     }
-  }, [started, messages.length, language])
+  }, [started, messages.length, language, dictionary.home.welcome])
 
   useEffect(() => {
     setMessages((prev) =>
       prev.map((msg) => {
         if (msg.id === "0" && welcomeIndex !== null) {
-          return { ...msg, content: i18n[language].home.welcome[welcomeIndex] }
+          return { ...msg, content: dictionary.home.welcome[welcomeIndex] }
         }
         if (msg.id.endsWith("-warning")) {
-          return { ...msg, content: i18n[language].citySelector.selectCityAIWarning }
+          return { ...msg, content: dictionary.citySelector.selectCityAIWarning }
         }
         return msg
       })
     )
-  }, [language, welcomeIndex])
+  }, [language, welcomeIndex, dictionary.home.welcome, dictionary.citySelector.selectCityAIWarning])
 
   const handleSendMessage = useCallback(
-    async (userMessage: string) => {
+    async (userMessage: string, detectedLanguage?: string | null) => {
       if (!userMessage.trim()) return
       if (!selectedCity) {
         const aiWarning: Message = {
           id: Date.now().toString() + "-warning",
           type: "ai",
-          content: i18n[language].citySelector.selectCityAIWarning,
+          content: dictionary.citySelector.selectCityAIWarning,
           timestamp: new Date(),
         }
         setMessages((prev) => [...prev, aiWarning])
@@ -114,6 +115,7 @@ export default function Home() {
         type: "user",
         content: userMessage,
         timestamp: new Date(),
+        language: (detectedLanguage as Language) || language
       }
 
       setMessages((prev) => [...prev, userMsg])
@@ -133,7 +135,7 @@ export default function Home() {
             city: selectedCity,
             countryCode: selectedCountry,
             weatherData: currentWeather,
-            language,
+            language: detectedLanguage || language,
             history: chatHistory,
             duration: Math.min(Math.max(1, duration), 5),
           }),
@@ -150,6 +152,7 @@ export default function Home() {
             content: suggestions?.explanation || (typeof suggestions === "string" ? suggestions : ""),
             travelPlans: suggestions?.places ? suggestions : undefined,
             timestamp: new Date(),
+            language: (detectedLanguage as Language) || language
           },
         ])
       } catch (err) {
@@ -169,7 +172,7 @@ export default function Home() {
         setIsLoading(false)
       }
     },
-    [language, started, messages, selectedCity, selectedCountry, currentWeather, duration]
+    [language, started, messages, selectedCity, selectedCountry, currentWeather, duration, dictionary.citySelector.selectCityAIWarning]
   )
 
   const handleAudioSubmit = useCallback(
@@ -181,11 +184,15 @@ export default function Home() {
   )
 
   useEffect(() => {
-    if (transcriber.output?.text) {
-      handleSendMessage(transcriber.output.text)
-      transcriber.onInputChange()
+    const handleVoice = async () => {
+      if (transcriber.output?.text) {
+        const detected = await detectLanguage(transcriber.output.text)
+        handleSendMessage(transcriber.output.text, detected)
+        transcriber.onInputChange()
+      }
     }
-  }, [transcriber.output, handleSendMessage, transcriber])
+    handleVoice()
+  }, [transcriber.output, handleSendMessage, transcriber, detectLanguage])
 
   const handleLocationSelect = async (city: string) => {
     const data = await fetchWeather(city)
@@ -207,7 +214,7 @@ export default function Home() {
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [messages])
+  }, [messages.length])
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden min-h-0 bg-white dark:bg-slate-950">
@@ -237,7 +244,7 @@ export default function Home() {
         <div className="flex-1 flex flex-col overflow-hidden border-r border-border/50 min-h-0">
           <div className="flex-1 overflow-y-auto px-2 sm:px-4 md:px-6 lg:px-8 scroll-smooth min-h-0 pb-0">
             {!started && messages.length === 0 ? (
-              <HeroSection hero={i18n[language].home.hero} logo={logo} />
+              <HeroSection logo={logo} />
             ) : (
               <ChatDisplay
                 messages={messages}
@@ -265,7 +272,7 @@ export default function Home() {
                   <ChatInput
                     value={chatInput}
                     onChange={setChatInput}
-                    onSendMessage={() => handleSendMessage(chatInput)}
+                    onSendMessage={(val: string) => handleSendMessage(val)}
                     isLoading={isLoading}
                     onAudioRecorded={handleAudioSubmit}
                     language={language}

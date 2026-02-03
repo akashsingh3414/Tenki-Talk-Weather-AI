@@ -1,7 +1,8 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
-import { i18n, type Language } from "@/lib/i18n"
+import { type Language } from "@/lib/i18n"
+import { LanguageContext } from "@/lib/language_context"
+import React, { useState, useEffect, useRef, useContext } from "react"
 import { MapPin, ChevronLeft, ChevronRight } from "lucide-react"
 import { WeatherConditionIcon } from "./weather_display"
 import { getWeather } from "@/app/actions"
@@ -58,7 +59,8 @@ export function FamousPlaces({
     const [weatherData, setWeatherData] = useState<Record<string, PlaceWeather>>(getCachedData(language) || {})
     const [loading, setLoading] = useState(!getCachedData(language))
     const scrollRef = useRef<HTMLDivElement>(null)
-    const t = i18n[language].famousPlaces
+    const { dictionary, translate } = useContext(LanguageContext)
+    const t = dictionary.famousPlaces
 
     const scroll = (direction: "left" | "right") => {
         if (scrollRef.current) {
@@ -151,47 +153,81 @@ export function FamousPlaces({
                         const weather = weatherData[place.city]
                         if (!weather) return null
 
-                        const localizedCityName = (t.places as Record<string, string>)?.[place.city] || weather.city
-
                         return (
-                            <button
+                            <FamousPlaceItem
                                 key={place.city}
-                                onClick={() => onSelect(place.city, place.countryCode)}
-                                className="flex-none w-[140px] lg:w-[160px] p-3 bg-white dark:bg-slate-900/50 border border-slate-300 dark:border-slate-800/80 rounded-2xl hover:border-blue-500/50 dark:hover:border-blue-400/50 hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-all text-left group active:scale-95 shadow-sm"
-                            >
-                                <div className="flex flex-col gap-0.5">
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-[14px] font-bold text-slate-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                                            {localizedCityName}
-                                        </span>
-                                        <span className="text-[9px] font-bold text-slate-400 dark:text-slate-600 uppercase">
-                                            {place.countryCode}
-                                        </span>
-                                    </div>
-
-                                    <div className="flex items-center justify-between mt-1">
-                                        <div className="flex flex-col">
-                                            <span className="text-[18px] font-black text-slate-900 dark:text-white leading-tight">
-                                                {Math.round(weather.temp)}°
-                                            </span>
-                                            <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-500 truncate max-w-[80px]">
-                                                {weather.description}
-                                            </span>
-                                        </div>
-                                        <div className="w-8 h-8 rounded-xl bg-blue-50/50 dark:bg-blue-900/20 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                            <WeatherConditionIcon
-                                                condition={weather.description}
-                                                size={18}
-                                                className="text-blue-600 dark:text-blue-400 font-bold"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            </button>
+                                place={place}
+                                weather={weather}
+                                t={t}
+                                onSelect={onSelect}
+                                translate={translate}
+                            />
                         )
                     })
                 )}
             </div>
         </div>
+    )
+}
+
+function FamousPlaceItem({
+    place,
+    weather,
+    t,
+    onSelect,
+    translate
+}: {
+    place: FamousPlace
+    weather: PlaceWeather
+    t: any
+    onSelect: (city: string, countryCode: string) => void
+    translate: (text: string) => Promise<string>
+}) {
+    const [translatedDescription, setTranslatedDescription] = useState(weather.description)
+
+    useEffect(() => {
+        const doTranslate = async () => {
+            const translated = await translate(weather.description)
+            setTranslatedDescription(translated)
+        }
+        doTranslate()
+    }, [weather.description, translate])
+
+    const localizedCityName = (t.places as Record<string, string>)?.[place.city] || weather.city
+
+    return (
+        <button
+            onClick={() => onSelect(place.city, place.countryCode)}
+            className="flex-none w-[140px] lg:w-[160px] p-3 bg-white dark:bg-slate-900/50 border border-slate-300 dark:border-slate-800/80 rounded-2xl hover:border-blue-500/50 dark:hover:border-blue-400/50 hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-all text-left group active:scale-95 shadow-sm"
+        >
+            <div className="flex flex-col gap-0.5">
+                <div className="flex items-center justify-between">
+                    <span className="text-[14px] font-bold text-slate-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                        {localizedCityName}
+                    </span>
+                    <span className="text-[9px] font-bold text-slate-400 dark:text-slate-600 uppercase">
+                        {place.countryCode}
+                    </span>
+                </div>
+
+                <div className="flex items-center justify-between mt-1">
+                    <div className="flex flex-col">
+                        <span className="text-[18px] font-black text-slate-900 dark:text-white leading-tight">
+                            {Math.round(weather.temp)}°
+                        </span>
+                        <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-500 truncate max-w-[80px]">
+                            {translatedDescription}
+                        </span>
+                    </div>
+                    <div className="w-8 h-8 rounded-xl bg-blue-50/50 dark:bg-blue-900/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <WeatherConditionIcon
+                            condition={weather.description}
+                            size={18}
+                            className="text-blue-600 dark:text-blue-400 font-bold"
+                        />
+                    </div>
+                </div>
+            </div>
+        </button>
     )
 }

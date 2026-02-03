@@ -1,4 +1,4 @@
-export type Language = "ja-JP" | "en-US" | "hi-IN"
+export type Language = "ja-JP" | "en-US" | "hi-IN" | string;
 
 export const i18n = {
     "ja-JP": {
@@ -116,6 +116,8 @@ export const i18n = {
             detailedInfo: "詳しい情報",
             website: "ウェブサイト",
             googleMaps: "Google マップ",
+            duration: "滞在時間",
+            travelTip: "旅行のヒント",
         },
         common: {
             today: "今日",
@@ -238,6 +240,8 @@ export const i18n = {
             detailedInfo: "Detailed Info",
             website: "Website",
             googleMaps: "Google Maps",
+            duration: "Duration",
+            travelTip: "Travel Tip",
         },
         common: {
             today: "Today",
@@ -360,6 +364,8 @@ export const i18n = {
             detailedInfo: "विस्तृत जानकारी",
             website: "वेबसाइट",
             googleMaps: "गूगल मैप्स",
+            duration: "अवधि",
+            travelTip: "यात्रा टिप",
         },
         common: {
             today: "आज",
