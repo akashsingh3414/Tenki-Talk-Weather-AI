@@ -356,8 +356,6 @@ function ForecastCard({ item, language, labels, isCompact = false }: { item: For
         </div>
       </div>
 
-      <hr className={cn("border-t", itemStyle.text, "opacity-10 my-2")} />
-
       <div className={cn("grid grid-cols-1 gap-y-1.5 mt-auto", itemStyle.text)}>
         <StatSmall icon={<Droplets size={10} />} label={labels.humidity} value={`${item.humidity}%`} />
         <StatSmall icon={<Wind size={10} />} label={labels.windSpeed} value={`${Math.round(item.wind_speed)}m/s`} />

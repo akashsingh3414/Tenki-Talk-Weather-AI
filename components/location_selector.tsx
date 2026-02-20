@@ -60,7 +60,7 @@ export function LocationSelector({
     if (showTooltip) {
       const timer = setTimeout(() => {
         setShowTooltip(false)
-      }, 3000)
+      }, 2000)
       return () => clearTimeout(timer)
     }
   }, [showTooltip])

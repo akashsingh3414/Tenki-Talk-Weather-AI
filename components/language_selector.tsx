@@ -2,7 +2,7 @@
 
 import { useState, useRef, useContext } from "react"
 import { Button } from "@/components/ui/button"
-import { ChevronDown, LanguagesIcon } from "lucide-react"
+import { ChevronDown, LanguagesIcon, Loader2 } from "lucide-react"
 import { LanguageContext } from "@/lib/language_context"
 import { type Language as I18nLanguage } from "@/lib/i18n"
 
@@ -19,6 +19,7 @@ export function LanguageSelector({
 }: LanguageSelectorProps) {
   const { isTranslating, prepareTranslator, availability, checkAvailability } = useContext(LanguageContext);
   const [isOpen, setIsOpen] = useState(false)
+  const [loadingLanguage, setLoadingLanguage] = useState<string | null>(null)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const languages = [
@@ -60,7 +61,6 @@ export function LanguageSelector({
       {isOpen && (
         <div className="absolute right-0 mt-2 w-56 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl shadow-2xl z-[9999] p-1.5 animate-in fade-in zoom-in-95 duration-200">
           {languages.map(lang => {
-            const isDownloading = availability.translator === "downloadable" || availability.translator === "downloading";
             const isSelected = currentLanguage === lang.code;
 
             return (
@@ -68,11 +68,15 @@ export function LanguageSelector({
                 key={lang.code}
                 onClick={async () => {
                   if (lang.code !== currentLanguage) {
-                    await prepareTranslator(lang.code as any);
-                    onChange(lang.code);
-                    await checkAvailability();
+                    setLoadingLanguage(lang.code);
+                    try {
+                      await prepareTranslator(lang.code as any);
+                      onChange(lang.code);
+                      await checkAvailability();
+                    } finally {
+                      setLoadingLanguage(null);
+                    }
                   }
-                  setIsOpen(false);
                 }}
                 className={`w-full px-3 py-2.5 rounded-lg text-left text-sm transition-all flex items-center justify-between group
                   ${isSelected
@@ -82,20 +86,15 @@ export function LanguageSelector({
               >
                 <div className="flex items-center gap-2">
                   <span>{lang.nativeName}</span>
-                  {isDownloading && !isSelected && (
-                    <span className="text-[10px] bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-1.5 py-0.5 rounded uppercase font-bold tracking-tighter">
-                      Get AI
-                    </span>
+                  {loadingLanguage === lang.code && (
+                    <Loader2 className="h-3 w-3 animate-spin" />
                   )}
                 </div>
-                {isSelected && (
-                  <div className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
-                )}
               </button>
             );
           })}
         </div>
       )}
-    </div>
+    </div >
   )
 }

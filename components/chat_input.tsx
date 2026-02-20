@@ -58,7 +58,7 @@ export function ChatInput({
     if (activeTooltip) {
       const timer = setTimeout(() => {
         setActiveTooltip(null)
-      }, 3000)
+      }, 2000)
       return () => clearTimeout(timer)
     }
   }, [activeTooltip])
@@ -141,8 +141,8 @@ export function ChatInput({
     : t.placeholderNoCity
 
   return (
-    <div className="flex flex-row w-full gap-2 items-center">
-      <div className="flex-1 min-w-0 relative">
+    <div className="flex flex-col-reverse lg:flex-row w-full gap-3 lg:gap-2 items-center">
+      <div className="w-full lg:flex-1 min-w-0 relative">
         <Input
           ref={inputRef}
           value={isRecording ? (transcriber.interimTranscript || "") : value}
@@ -165,7 +165,7 @@ export function ChatInput({
         )}
       </div>
 
-      <div className="flex items-center gap-1.5 justify-end lg:justify-start">
+      <div className="flex flex-wrap lg:flex-nowrap items-center gap-1.5 justify-center lg:justify-start w-full lg:w-auto">
         {onToggleLocations && (
           <Tooltip
             content={showLocations ? t.showKeyboard : t.showLocations}
@@ -313,7 +313,7 @@ export function ChatInput({
 
         {onToggleFamous && (
           <Tooltip
-            content={showFamous ? dictionary.famousPlaces.hide : dictionary.famousPlaces.show}
+            content={dictionary.famousPlaces.tooltip}
             visible={activeTooltip === "famous"}
             variant="info"
           >

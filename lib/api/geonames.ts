@@ -18,7 +18,7 @@ export async function getGeoNamesCities(countryCode: string) {
     }
 
     const res = await fetch(
-        `https://secure.geonames.org/searchJSON?username=${GEONAMES_USER}&country=${countryCode}&featureClass=P&maxRows=500&orderby=population`
+        `https://secure.geonames.org/searchJSON?username=${GEONAMES_USER}&country=${countryCode}&featureClass=P&maxRows=1000&orderby=population&cities=cities15000`
     )
     if (!res.ok) throw new Error("Failed to fetch cities")
     return await res.json()

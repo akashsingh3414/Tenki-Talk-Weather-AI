@@ -95,8 +95,7 @@ export const i18n = {
         famousPlaces: {
             title: "人気の場所",
             loading: "読み込み中...",
-            show: "おすすめを表示",
-            hide: "おすすめを非表示",
+            tooltip: "おすすめ",
             places: {
                 Tokyo: "東京",
                 Kyoto: "京都",
@@ -219,8 +218,7 @@ export const i18n = {
         famousPlaces: {
             title: "Famous Places",
             loading: "Loading...",
-            show: "Show Suggestions",
-            hide: "Hide Suggestions",
+            tooltip: "Suggestions",
             places: {
                 Tokyo: "Tokyo",
                 Kyoto: "Kyoto",
@@ -343,8 +341,7 @@ export const i18n = {
         famousPlaces: {
             title: "प्रसिद्ध स्थान",
             loading: "लोड हो रहा है...",
-            show: "सुझाव दिखाएं",
-            hide: "सुझाव छिपाएं",
+            tooltip: "सुझाव",
             places: {
                 Tokyo: "टोक्यो",
                 Kyoto: "क्योटो",
