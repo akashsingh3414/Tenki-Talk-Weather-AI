@@ -1,4 +1,4 @@
-import { WeatherData } from "../ai/types";
+import { WeatherData } from "../types";
 
 interface ForecastItem {
     dt_txt: string;

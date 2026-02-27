@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useCallback } from 'react'
-import { WeatherData } from '@/lib/ai/types'
+import { WeatherData } from '@/lib/types'
 import { Language } from '@/lib/i18n'
 import { getWeather } from '@/app/actions'
 

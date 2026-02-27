@@ -45,7 +45,7 @@ export function LanguageSelector({
     >
       <Button
         variant="ghost"
-        className="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700"
+        className="cursor-pointer bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700"
       >
         <LanguagesIcon className={`w-4 h-4 mr-2 ${isTranslating ? "animate-pulse text-blue-500" : ""}`} />
         <span className="truncate">
@@ -59,7 +59,7 @@ export function LanguageSelector({
       </Button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-56 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl shadow-2xl z-[9999] p-1.5 animate-in fade-in zoom-in-95 duration-200">
+        <div className="absolute right-0 mt-2 w-56 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl z-[9999] p-1.5 animate-in fade-in zoom-in-95 duration-200">
           {languages.map(lang => {
             const isSelected = currentLanguage === lang.code;
 
@@ -78,9 +78,9 @@ export function LanguageSelector({
                     }
                   }
                 }}
-                className={`w-full px-3 py-2.5 rounded-lg text-left text-sm transition-all flex items-center justify-between group
+                className={`w-full px-3 py-2.5 rounded-lg text-left text-sm cursor-pointer transition-all flex items-center justify-between group
                   ${isSelected
-                    ? "bg-blue-500 text-white font-semibold shadow-md shadow-blue-500/20"
+                    ? "bg-blue-500 text-white font-semibold"
                     : "hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300"
                   }`}
               >

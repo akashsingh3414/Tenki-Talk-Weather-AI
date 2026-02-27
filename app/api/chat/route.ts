@@ -1,51 +1,44 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { executeWithFallback, parseAIResponse } from "@/lib/api/ai"
+import { AIService } from "@/lib/ai/core"
+import { PromptManager } from "@/lib/ai/prompts"
+import { buildMessages } from "@/lib/ai/request_builder"
+
+// ─── Route Handler ─────────────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
+  let language = "en-US";
   try {
-    const {
-      message,
-      city,
-      weatherData,
-      language,
-      history,
-      duration = 1,
-    } = await req.json()
+    const body = await req.json()
+    const { message, weatherData, history, duration = 1 } = body
+    language = body.language || "en-US"
 
     if (!message && !weatherData) {
-      return NextResponse.json(
-        { error: "Message or Weather Data is required" },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: "Message or Weather Data is required" }, { status: 400 })
     }
 
-    const context = {
-      city: city || weatherData?.current?.city,
-      history: history,
-    }
+    const systemPrompt = PromptManager.getWeatherSystemPrompt(weatherData, language, duration, message)
+    const messages = buildMessages(systemPrompt, history, message)
 
-    const { result: aiResponse, provider } = await executeWithFallback(
-      (prov) => {
-        if (weatherData) {
-          return prov.generateWeatherResponse(message, weatherData, language, context, undefined, duration)
-        } else {
-          return prov.generateChatResponse(message, language, context)
-        }
-      }
-    )
+    // AIService handles all fallbacks internally — never throws
+    const result = await AIService.generateTravelPlan(messages);
 
-    const finalSuggestions = parseAIResponse(aiResponse)
+    console.log(`\nAI Response from: ${result.provider}`)
 
-    return NextResponse.json({
-      suggestions: finalSuggestions,
-      language,
-      weatherData,
-      provider
-    })
+    const suggestions = result.object || {
+      explanation: "I couldn't generate a travel plan. Please try again.",
+      places: [],
+    };
+
+    return NextResponse.json({ suggestions, language, weatherData, provider: result.provider })
+
   } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to generate suggestions" },
-      { status: 500 }
-    )
+    console.error("Unexpected API error:", error)
+    return NextResponse.json({
+      suggestions: {
+        explanation: "Sorry, something went wrong. Please try again.",
+        places: [],
+      },
+      language,
+    })
   }
 }

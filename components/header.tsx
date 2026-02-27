@@ -4,6 +4,7 @@ import * as React from "react"
 import { Sun, Moon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { LanguageSelector } from "@/components/language_selector"
+import { UserMenu } from "@/components/user_menu"
 import { useTheme } from "@/components/theme_provider"
 import Image from "next/image"
 import { useContext } from "react"
@@ -23,9 +24,9 @@ export function Header() {
         <div className="hidden md:flex items-center justify-between gap-4 py-3 lg:py-4">
           <button
             onClick={onHomeClick}
-            className="flex items-center gap-2 transition-all hover:opacity-80 active:scale-95"
+            className="flex items-center gap-2 cursor-pointer transition-all hover:opacity-80 active:scale-95"
           >
-            <div className="relative w-10 h-10 lg:w-12 lg:h-12 overflow-hidden rounded-xl bg-slate-100 dark:bg-slate-900 shadow-inner animate-float">
+            <div className="relative w-10 h-10 lg:w-12 lg:h-12 overflow-hidden rounded-xl bg-slate-100 dark:bg-slate-900 animate-float">
               <Image
                 src={logo}
                 alt="Tenki Talk Logo"
@@ -46,11 +47,14 @@ export function Header() {
           </div>
 
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             <LanguageSelector
               currentLanguage={language}
               onChange={onLanguageChange}
             />
-            <ThemeToggle />
+            <div className="ml-2 border-l border-slate-200 dark:border-slate-800 pl-4">
+              <UserMenu />
+            </div>
           </div>
         </div>
 
@@ -58,9 +62,9 @@ export function Header() {
           <div className="flex items-center justify-between py-3">
             <button
               onClick={onHomeClick}
-              className="flex items-center gap-2.5 transition-all hover:opacity-80 active:scale-95"
+              className="flex items-center gap-2.5 cursor-pointer transition-all hover:opacity-80 active:scale-95"
             >
-              <div className="relative w-8 h-8 overflow-hidden rounded-lg bg-slate-100 dark:bg-slate-900 shadow-inner animate-float">
+              <div className="relative w-8 h-8 overflow-hidden rounded-lg bg-slate-100 dark:bg-slate-900 animate-float">
                 <Image
                   src={logo}
                   alt="Tenki Talk Logo"
@@ -75,11 +79,12 @@ export function Header() {
             </button>
 
             <div className="flex items-center gap-2">
+              <ThemeToggle />
               <LanguageSelector
                 currentLanguage={language}
                 onChange={onLanguageChange}
               />
-              <ThemeToggle />
+              <UserMenu />
             </div>
           </div>
 
@@ -104,10 +109,10 @@ function ThemeToggle() {
 
   return (
     <Button
-      variant="ghost"
+      variant="outline"
       size="icon"
       onClick={toggleTheme}
-      className="hover:text-blue-600 dark:hover:text-blue-400"
+      className="rounded-xl cursor-pointer border-slate-300 dark:border-slate-800 hover:text-blue-600 dark:hover:text-blue-400"
     >
       {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
     </Button>

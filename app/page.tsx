@@ -1,11 +1,12 @@
 "use client"
 
 import { useState, useRef, useEffect, useCallback, useContext } from "react"
-import { ChevronDown, ChevronUp } from "lucide-react"
+import { ChevronDown, ChevronUp, Loader2 } from "lucide-react"
 import { type Language } from "@/lib/i18n"
 import { useTranscriber } from "./hooks/useTranscriber"
 import { WeatherDisplay } from "@/components/weather_display"
 import { ChatInput } from "@/components/chat_input"
+import { Button } from "@/components/ui/button"
 import { FamousPlaces } from "@/components/famous_places"
 import { useWeather } from "./hooks/useWeather"
 import { LanguageContext } from "@/lib/language_context"
@@ -13,9 +14,11 @@ import { HeroSection } from "@/components/hero_section"
 import { ChatDisplay } from "@/components/chat_display"
 import { WeatherSidebar } from "@/components/weather_sidebar"
 import { LocationSelector } from "@/components/location_selector"
+import { LandingView } from "@/components/landing_view"
 import logo from "@/app/icon.png"
 import { Message } from "@/lib/types"
 import { useLanguageDetection } from "./hooks/useLanguageDetection"
+import { useAuth } from "@/lib/auth_context"
 
 export default function Home() {
   const { language, resetTrigger, dictionary } = useContext(LanguageContext)
@@ -40,6 +43,10 @@ export default function Home() {
     fetchWeather,
     setWeatherData: setCurrentWeather
   } = useWeather(language)
+
+  const auth = useAuth()
+  const user = auth.user
+
 
   useEffect(() => {
     if (resetTrigger > 0) {
@@ -144,18 +151,17 @@ export default function Home() {
         const data = await res.json()
         const suggestions = data.suggestions
 
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: (Date.now() + 1).toString(),
-            type: "ai",
-            content: suggestions?.explanation || (typeof suggestions === "string" ? suggestions : ""),
-            travelPlans: suggestions?.places ? suggestions : undefined,
-            timestamp: new Date(),
-            language: (detectedLanguage as Language) || language
-          },
-        ])
-      } catch (err) {
+        const aiMsg: Message = {
+          id: (Date.now() + 1).toString(),
+          type: "ai",
+          content: suggestions?.explanation || (typeof suggestions === "string" ? suggestions : ""),
+          travelPlans: suggestions?.places ? suggestions : undefined,
+          timestamp: new Date(),
+          language: (detectedLanguage as Language) || language
+        };
+
+        setMessages((prev) => [...prev, aiMsg])
+      } catch (err: any) {
         setMessages((prev) => [
           ...prev,
           {
@@ -172,7 +178,7 @@ export default function Home() {
         setIsLoading(false)
       }
     },
-    [language, started, messages, selectedCity, selectedCountry, currentWeather, duration, dictionary.citySelector.selectCityAIWarning]
+    [language, started, messages, selectedCity, selectedCountry, currentWeather, duration, dictionary.citySelector.selectCityAIWarning, user]
   )
 
   const handleAudioSubmit = useCallback(
@@ -216,9 +222,20 @@ export default function Home() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages.length])
 
+  if (auth.loading) {
+    return (
+      <div className="flex-1 flex items-center justify-center bg-white dark:bg-slate-950">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 size={40} className="animate-spin text-blue-600" />
+          <p className="text-slate-500 font-medium animate-pulse">Initializing Tenki Talk...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="flex-1 flex flex-col overflow-hidden min-h-0 bg-white dark:bg-slate-950">
-      {currentWeather && currentWeather.current && (
+      {user && currentWeather && currentWeather.current && (
         <div className="lg:hidden border-b border-border bg-muted/20 relative flex-none">
           <button
             onClick={() => setWeatherOpen((v) => !v)}
@@ -244,7 +261,7 @@ export default function Home() {
         <div className="flex-1 flex flex-col overflow-hidden border-r border-border/50 min-h-0">
           <div className="flex-1 overflow-y-auto px-2 sm:px-4 md:px-6 lg:px-8 scroll-smooth min-h-0 pb-0">
             {!started && messages.length === 0 ? (
-              <HeroSection logo={logo} />
+              <LandingView logo={logo} user={user} onLogin={() => auth.login()} />
             ) : (
               <ChatDisplay
                 messages={messages}
@@ -256,65 +273,67 @@ export default function Home() {
             )}
           </div>
 
-          <div className="flex-none bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border-t border-slate-300 dark:border-slate-800 px-2 sm:px-4 py-2 sm:py-4">
-            {showFamous && (
-              <div className="max-w-5xl mx-auto mb-2 sm:mb-3 animate-in slide-in-from-bottom-4 duration-500">
-                <FamousPlaces
-                  language={language}
-                  onSelect={handleFamousPlaceSelect}
-                />
-              </div>
-            )}
-
-            <div className="max-w-5xl mx-auto relative">
-              <div className="flex flex-col-reverse lg:flex-row-reverse gap-2 sm:gap-3 items-end">
-                <div className="flex-1 w-full lg:min-w-0">
-                  <ChatInput
-                    value={chatInput}
-                    onChange={setChatInput}
-                    onSendMessage={(val: string) => handleSendMessage(val)}
-                    isLoading={isLoading}
-                    onAudioRecorded={handleAudioSubmit}
+          {user && (
+            <div className="flex-none bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border-t border-slate-300 dark:border-slate-800 px-2 sm:px-4 py-2 sm:py-4">
+              {showFamous && (
+                <div className="max-w-5xl mx-auto mb-2 sm:mb-3 animate-in slide-in-from-bottom-4 duration-500">
+                  <FamousPlaces
                     language={language}
-                    transcriber={transcriber}
-                    currentCity={selectedCity}
-                    showLocations={showLocations}
-                    onToggleLocations={() => setShowLocations(!showLocations)}
-                    showFamous={showFamous}
-                    onToggleFamous={() => setShowFamous(!showFamous)}
-                    duration={duration}
-                    onDurationChange={setDuration}
+                    onSelect={handleFamousPlaceSelect}
                   />
                 </div>
+              )}
 
-                <div className={`w-full lg:w-72 xl:w-80 flex-none ${showLocations ? "block" : "hidden lg:block"}`}>
-                  <div className="backdrop-blur-md rounded-2xl border-none lg:p-0 p-2 shadow-sm lg:shadow-none animate-in fade-in slide-in-from-bottom-2 duration-300">
-                    <LocationSelector
+              <div className="max-w-5xl mx-auto relative">
+                <div className="flex flex-col-reverse lg:flex-row-reverse gap-2 sm:gap-3 items-end">
+                  <div className="flex-1 w-full lg:min-w-0">
+                    <ChatInput
+                      value={chatInput}
+                      onChange={setChatInput}
+                      onSendMessage={(val: string) => handleSendMessage(val)}
+                      isLoading={isLoading}
+                      onAudioRecorded={handleAudioSubmit}
                       language={language}
-                      selectedCountry={selectedCountry}
-                      selectedCity={selectedCity}
-                      onCountryChange={(country: string) => {
-                        setSelectedCountry(country)
-                        setSelectedCity("")
-                        setCurrentWeather(null)
-                      }}
-                      onCityChange={(city: string) => {
-                        setSelectedCity(city)
-                        if (city) {
-                          handleLocationSelect(city)
-                          setShowLocations(false)
-                        }
-                      }}
-                      disabled={isLoading || weatherLoading}
+                      transcriber={transcriber}
+                      currentCity={selectedCity}
+                      showLocations={showLocations}
+                      onToggleLocations={() => setShowLocations(!showLocations)}
+                      showFamous={showFamous}
+                      onToggleFamous={() => setShowFamous(!showFamous)}
+                      duration={duration}
+                      onDurationChange={setDuration}
                     />
+                  </div>
+
+                  <div className={`w-full lg:w-72 xl:w-80 flex-none ${showLocations ? "block" : "hidden lg:block"}`}>
+                    <div className="backdrop-blur-md rounded-2xl border-none lg:p-0 p-2 shadow-sm lg:shadow-none animate-in fade-in slide-in-from-bottom-2 duration-300">
+                      <LocationSelector
+                        language={language}
+                        selectedCountry={selectedCountry}
+                        selectedCity={selectedCity}
+                        onCountryChange={(country: string) => {
+                          setSelectedCountry(country)
+                          setSelectedCity("")
+                          setCurrentWeather(null)
+                        }}
+                        onCityChange={(city: string) => {
+                          setSelectedCity(city)
+                          if (city) {
+                            handleLocationSelect(city)
+                            setShowLocations(false)
+                          }
+                        }}
+                        disabled={isLoading || weatherLoading}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
 
-        <WeatherSidebar weatherData={currentWeather} language={language} />
+        {user && <WeatherSidebar weatherData={currentWeather} language={language} />}
       </div>
     </div>
   )

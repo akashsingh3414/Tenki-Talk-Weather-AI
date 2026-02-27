@@ -1,46 +1,39 @@
-# 天気トーク (Tenki Talk)
+# 天気トーク — Tenki Talk
 
-A multilingual, weather-aware AI travel planner that creates personalized itineraries, recommends local spots, and suggests outfits based on real-time weather and multi-day forecasts.
+> **Weather-aware AI travel planning, reimagined.**
 
----
-
-## Why Tenki Talk?
-
-Tenki Talk goes beyond generic travel suggestions by **actively using real-time and forecasted weather** to decide *what to do, when to do it, and what to wear*.
-
-**What makes it different:**
-
-* Weather-aware, time-sensitive itineraries
-* Smart multi-day trip planning (1–5 days)
-* Multilingual & culturally aware (English, 日本語, हिन्दी)
-* Voice-enabled input with intelligent fallbacks
-* Dynamic UI that adapts to temperature and device
+Tenki Talk is a multilingual AI travel assistant that generates real-time, context-sensitive itineraries by integrating live weather data into every recommendation. Rather than offering static suggestions, it adapts plans dynamically to temperature, humidity, visibility, and multi-day forecasts.
 
 ---
 
-## Key Features
+## Features
 
-* **Weather-Aware Planning**: Activities adapt to real-time and forecasted conditions
-* **Time-Sliced Forecast Intelligence**: Uses Morning, Day, Evening, and Night weather contexts
-* **Multi-Day Trips**: Automatically balances pacing and activity density
-* **Outfit Suggestions**: Weather-, climate-, and season-appropriate clothing advice
-* **Strict Travel Scope**: Only travel, dining, entertainment, and outing-related recommendations
+| Feature | Description |
+|---|---|
+| **Weather-Aware Itineraries** | Every recommendation is grounded in live weather data — conditions, temperature, humidity, and visibility inform each suggestion |
+| **Multi-Day Planning** | Intelligent itinerary pacing across 1–5 days, with activity density scaled per duration |
+| **Forecast Integration** | Per-day Morning, Afternoon, Evening, and Night weather snapshots for accurate scheduling |
+| **Category Intelligence** | Requests filtered by topic (dining, sightseeing, nightlife, clothing) — responses stay strictly within scope |
+| **Outfit Recommendations** | Season- and condition-appropriate clothing suggestions tied to current weather |
+| **Multilingual Support** | Full support for English, 日本語 (Japanese), and हिन्दी (Hindi) |
+| **Voice Input** | Speech-to-text via Web Speech API with OpenAI Whisper as fallback |
+| **Google Authentication** | Secure, passwordless sign-in via Firebase Authentication |
 
 ---
 
 ## Tech Stack
 
-| Category       | Technology                                         |
-| -------------- | -------------------------------------------------- |
-| Framework      | Next.js 16 (App Router)                            |
-| UI             | React 19                                           |
-| Language       | TypeScript                                         |
-| Styling        | Tailwind CSS v4, Lucide Icons                      |
-| Animations     | Framer Motion                                      |
-| AI             | Hugging Face (Llama 3.2), Google Gemini (Fallback) |
-| Speech-to-Text | Web Speech API, OpenAI Whisper                     |
-| Weather        | OpenWeatherMap                                     |
-| Location       | GeoNames                                           |
+| Layer | Technology |
+|---|---|
+| Framework | Next.js (App Router) |
+| Language | TypeScript |
+| Styling | Tailwind CSS v4, Lucide Icons |
+| AI — Primary | Groq (`llama-3.3-70b-versatile`) |
+| AI — Fallback | Hugging Face (`Llama-3.2-3B-Instruct`) |
+| Speech-to-Text | Web Speech API, OpenAI Whisper |
+| Weather Data | OpenWeatherMap |
+| Location Data | GeoNames |
+| Authentication | Firebase Authentication (Google Sign-In) |
 
 ---
 
@@ -48,22 +41,30 @@ Tenki Talk goes beyond generic travel suggestions by **actively using real-time 
 
 ### Prerequisites
 
-You’ll need API keys for:
+Obtain API credentials for the following services:
 
-* Hugging Face
-* Google Gemini
-* OpenWeatherMap
-* GeoNames
+- [Groq](https://console.groq.com/)
+- [Hugging Face](https://huggingface.co/settings/tokens)
+- [OpenWeatherMap](https://openweathermap.org/api)
+- [GeoNames](https://www.geonames.org/login)
+- [Firebase](https://console.firebase.google.com/) — Authentication only, no Firestore required
 
-### Environment Setup
+### Environment Configuration
 
-Create a `.env.local` file:
+Create a `.env.local` file at the project root:
 
 ```env
-GEMINI_API_KEY=your_google_ai_key
-HUGGINGFACE_API_KEY=your_hf_token
-OPENWEATHERMAP_API_KEY=your_weather_key
-NEXT_PUBLIC_GEONAMES_USER=your_geonames_username
+OPENWEATHERMAP_API_KEY=
+
+GROQ_API_KEY=
+HUGGINGFACE_API_KEY=
+
+NEXT_PUBLIC_GEONAMES_USER=
+
+NEXT_PUBLIC_FIREBASE_API_KEY=
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=
+NEXT_PUBLIC_FIREBASE_APP_ID=
 ```
 
 ### Installation
@@ -77,27 +78,28 @@ npm run dev
 
 ---
 
-## Example Usage
+## Usage Examples
 
-### 2-Day Trip Planning
+**Multi-day itinerary**
+```
+Plan a 2-day trip in Chennai
+```
+Generates a weather-balanced itinerary — indoor venues during peak heat, outdoor activities scheduled around sunrise and sunset.
 
-**Input**: "I'm in Chennai for 2 days"
+**Category-specific request**
+```
+Street food spots in monsoon Mumbai
+```
+Returns covered markets and sheltered stalls only, with weather-appropriate safety notes.
 
-**Output**:
-
-* Day 1: Morning temples, afternoon museums (heat-aware)
-* Day 2: Morning beach, evening sunset dining
-
-### Clothing Advice
-
-**Input**: "What should I wear in Delhi in January?"
-
-**Output**: Layered clothing, warm outerwear, walking-friendly shoes
-
-### Weather-Safe Dining
-
-**Input**: "Street food spots in monsoon Mumbai"
-
-**Output**: Covered markets and indoor food courts with safety tips
+**Outfit planning**
+```
+What should I wear in Delhi in January?
+```
+Recommends layered clothing and appropriate footwear based on current temperature and conditions.
 
 ---
+
+## License
+
+MIT

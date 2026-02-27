@@ -6,70 +6,58 @@ import { Card } from "@/components/ui/card"
 import { ChevronDown, ChevronUp, MapPin, Sparkles, Info, Globe } from "lucide-react"
 import { type Language } from "@/lib/i18n"
 
-interface TravelPlace {
-    day?: number
-    timeOfDay?: "Morning" | "Afternoon" | "Evening"
-    name: string
-    description: string
-    suitability: string
-    weatherMatch: string
-    visitDuration?: string
-    travelTip?: string
-    details: string
-    imageSearchQuery: string
-    website?: string
-    mapsUrl?: string
-}
+import { type TravelPlace } from "@/lib/types"
 
 interface TravelCardProps {
     place: TravelPlace
-    language: Language
 }
 
-export function TravelCard({ place, language }: TravelCardProps) {
+export function TravelCard({ place }: TravelCardProps) {
     const { dictionary } = useContext(LanguageContext)
     const [isExpanded, setIsExpanded] = useState(false)
     const labels = dictionary.travelCard
 
     return (
-        <Card className="overflow-hidden border border-border bg-card hover:shadow-lg transition-all duration-300">
-            <div className="p-5">
-                <div className="flex justify-between items-start gap-4 mb-3">
-                    <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                            <MapPin className="w-4 h-4" />
+        <Card className="overflow-hidden border border-border bg-card hover:shadow-lg transition-all duration-300 h-full flex flex-col">
+            <div className="p-2 flex flex-col h-full">
+                <div className="flex-1">
+                    <div className="flex justify-between items-start gap-4 mb-1">
+                        <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                                <MapPin className="w-3 h-3" />
+                            </div>
+                            <div>
+                                <h4 className="font-bold text-lg text-foreground">{place.name}</h4>
+                                {(place.day || place.timeOfDay) && (
+                                    <p className="text-xs text-muted-foreground">
+                                        {place.day && `Day ${place.day}`}
+                                        {place.day && place.timeOfDay && " • "}
+                                        {place.timeOfDay && `${place.timeOfDay}`}
+                                    </p>
+                                )}
+                            </div>
                         </div>
-                        <div>
-                            <h4 className="font-bold text-lg text-foreground">{place.name}</h4>
-                            {(place.day || place.timeOfDay) && (
-                                <p className="text-xs text-muted-foreground">
-                                    {place.day && `Day ${place.day}`}
-                                    {place.day && place.timeOfDay && " • "}
-                                    {place.timeOfDay && `${place.timeOfDay}`}
-                                </p>
-                            )}
+                        <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-full text-[10px] font-bold uppercase tracking-wider border border-emerald-500/20">
+                            <Sparkles className="w-3 h-3" />
+                            {place.weatherMatch}
                         </div>
                     </div>
-                    <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-full text-[10px] font-bold uppercase tracking-wider border border-emerald-500/20">
-                        <Sparkles className="w-3 h-3" />
-                        {place.weatherMatch}
-                    </div>
-                </div>
 
-                <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-                    {place.description}
-                </p>
-
-                <div className="p-3 bg-muted/50 rounded-xl border border-border/50 mb-4">
-                    <p className="text-xs font-medium text-foreground flex items-center gap-2">
-                        <Sparkles className="w-3 h-3 text-primary" />
-                        {place.suitability}
+                    <p className="text-sm text-muted-foreground leading-relaxed mb-2">
+                        {place.description}
                     </p>
+
+                    <div className="p-2 bg-muted/50 rounded-xl border border-border/50 mb-2">
+                        <p className="text-xs font-medium text-foreground flex items-center gap-2">
+                            <Sparkles className="w-3 h-3 text-primary" />
+                            {place.suitability}
+                        </p>
+                    </div>
                 </div>
 
                 <button
                     onClick={() => setIsExpanded(!isExpanded)}
-                    className="w-full py-2.5 flex items-center justify-center gap-2 text-xs font-semibold text-primary hover:bg-primary/5 rounded-lg transition-colors border border-transparent hover:border-primary/20"
+                    className="w-full py-2 flex items-center justify-center gap-2 text-xs font-semibold text-primary hover:bg-primary/5 rounded-lg transition-colors border border-transparent hover:border-primary/20"
                 >
                     {isExpanded ? (
                         <>

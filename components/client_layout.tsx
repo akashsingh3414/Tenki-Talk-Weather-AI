@@ -1,6 +1,7 @@
 "use client"
 
 import { LanguageProvider } from "@/lib/language_context"
+import { AuthProvider } from "@/lib/auth_context"
 import { Header } from "@/components/header"
 
 function ClientLayoutContent({ children }: { children: React.ReactNode }) {
@@ -14,8 +15,10 @@ function ClientLayoutContent({ children }: { children: React.ReactNode }) {
 
 export function ClientLayout({ children }: { children: React.ReactNode }) {
     return (
-        <LanguageProvider>
-            <ClientLayoutContent>{children}</ClientLayoutContent>
-        </LanguageProvider>
+        <AuthProvider>
+            <LanguageProvider>
+                <ClientLayoutContent>{children}</ClientLayoutContent>
+            </LanguageProvider>
+        </AuthProvider>
     )
 }

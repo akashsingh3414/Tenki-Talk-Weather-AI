@@ -4,6 +4,7 @@ import { User, Loader2 } from "lucide-react"
 import { type Language } from "@/lib/i18n"
 import ReactMarkdown from "react-markdown"
 import { TravelCard } from "@/components/travel_card"
+import { TravelDayRow } from "@/components/travel_day_row"
 import Image from "next/image"
 import logo from "@/app/icon.png"
 import { Message } from "@/lib/types"
@@ -99,10 +100,23 @@ export function ChatMessage({ message, language }: ChatMessageProps) {
                 </div>
 
                 {translatedTravelPlans && translatedTravelPlans.places.length > 0 && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
-                    {translatedTravelPlans.places.map((place, idx) => (
-                      <TravelCard key={idx} place={place} language={language} />
-                    ))}
+                  <div className="space-y-8 mt-6">
+                    {Object.entries(
+                      translatedTravelPlans.places.reduce((acc, place) => {
+                        const day = place.day || 1
+                        if (!acc[day]) acc[day] = []
+                        acc[day].push(place)
+                        return acc
+                      }, {} as Record<number, typeof translatedTravelPlans.places>)
+                    )
+                      .sort(([a], [b]) => Number(a) - Number(b))
+                      .map(([day, dayPlaces]) => (
+                        <TravelDayRow
+                          key={day}
+                          day={day}
+                          dayPlaces={dayPlaces}
+                        />
+                      ))}
                   </div>
                 )}
 
@@ -115,7 +129,8 @@ export function ChatMessage({ message, language }: ChatMessageProps) {
             )}
           </div>
 
-          <span className="text-[11px] text-muted-foreground ml-1">
+          <span className="text-[11px] text-muted-foreground ml-1 font-mono">
+
             {message.timestamp.toLocaleTimeString(
               language === "ja-JP" ? "ja-JP" : language === "hi-IN" ? "hi-IN" : "en-US",
               { hour: "2-digit", minute: "2-digit" }

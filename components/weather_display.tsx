@@ -150,10 +150,10 @@ function CurrentWeatherCard({
         </div>
 
         <div className="text-right">
-          <p className="text-3xl sm:text-4xl font-black">
+          <p className="text-3xl sm:text-4xl font-black font-mono">
             {Math.round(current.temp)}°C
           </p>
-          <p className="text-sm sm:text-base opacity-75 font-semibold flex items-center justify-end gap-1">
+          <p className="text-sm sm:text-base opacity-75 font-semibold flex items-center justify-end gap-1 font-mono">
             {labels.feelsLike}:
             <Thermometer size={14} className="opacity-80" />
             {Math.round(current.feels_like)}°
@@ -175,13 +175,13 @@ function CurrentWeatherCard({
 
         <div className="flex flex-col gap-1.5">
           {sunriseTime && (
-            <div className={`flex items-center gap-2 bg-black/10 dark:bg-white/10 px-3 py-1.5 rounded-lg border border-white/5 text-xs font-bold ${currentStyle.text}`}>
+            <div className={`flex items-center gap-2 bg-black/10 dark:bg-white/10 px-3 py-1.5 rounded-lg border border-white/5 text-xs font-bold font-mono ${currentStyle.text}`}>
               <Sunrise size={14} className="opacity-80" />
               <span>{sunriseTime}</span>
             </div>
           )}
           {sunsetTime && (
-            <div className={`flex items-center gap-2 bg-black/10 dark:bg-white/10 px-3 py-1.5 rounded-lg border border-white/5 text-xs font-bold ${currentStyle.text}`}>
+            <div className={`flex items-center gap-2 bg-black/10 dark:bg-white/10 px-3 py-1.5 rounded-lg border border-white/5 text-xs font-bold font-mono ${currentStyle.text}`}>
               <Sunset size={14} className="opacity-80" />
               <span>{sunsetTime}</span>
             </div>
@@ -335,10 +335,10 @@ function ForecastCard({ item, language, labels, isCompact = false }: { item: For
     )}>
       <div className={cn(itemStyle.text, "flex-shrink-0")}>
         <div className="flex justify-between items-start mb-1">
-          <p className="text-xs font-bold opacity-80">{time}</p>
+          <p className="text-xs font-bold opacity-80 font-mono">{time}</p>
           <div className="flex items-center gap-1 opacity-70">
             <Thermometer size={11} />
-            <p className="text-[11px] font-bold">
+            <p className="text-[11px] font-bold font-mono">
               {Math.round(item.feels_like)}°
             </p>
           </div>
@@ -346,7 +346,7 @@ function ForecastCard({ item, language, labels, isCompact = false }: { item: For
         <div className="flex items-center justify-between gap-2 mt-1 mb-2">
           <div className="flex items-center gap-2">
             <WeatherConditionIcon condition={item.description} size={isCompact ? 22 : 26} />
-            <p className={cn("font-black tracking-tighter", isCompact ? "text-lg" : "text-xl")}>
+            <p className={cn("font-black tracking-tighter font-mono", isCompact ? "text-lg" : "text-xl")}>
               {Math.round(item.temp)}°
             </p>
           </div>
@@ -374,7 +374,7 @@ function StatSmall({ icon, label, value }: { icon: React.ReactNode, label: strin
         <span className="flex-none opacity-70">{icon}</span>
         <span className="text-[10px] font-bold uppercase tracking-wider truncate opacity-70">{label}</span>
       </div>
-      <span className="text-[11px] font-black whitespace-nowrap">{value}</span>
+      <span className="text-[11px] font-black whitespace-nowrap font-mono">{value}</span>
     </div>
   )
 }
@@ -400,7 +400,7 @@ function Stat({
           {label}
         </p>
       </div>
-      <p className={cn("text-sm lg:text-base font-black truncate w-full", style.text)}>{value}</p>
+      <p className={cn("text-sm lg:text-base font-black truncate w-full font-mono", style.text)}>{value}</p>
       {subtitle && (
         <p className={cn("text-[10px] font-bold opacity-50 truncate w-full", style.text)}>{subtitle}</p>
       )}

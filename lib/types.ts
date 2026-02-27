@@ -17,7 +17,7 @@ export interface Transcriber {
 
 export interface TravelPlace {
     day?: number
-    timeOfDay?: "Morning" | "Afternoon" | "Evening"
+    timeOfDay?: "Morning" | "Afternoon" | "Evening" | "Night"
     name: string
     description: string
     suitability: string

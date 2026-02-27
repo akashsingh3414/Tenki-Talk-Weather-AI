@@ -1,15 +1,23 @@
 import type { Metadata, Viewport } from "next"
-import { Montserrat } from "next/font/google"
+import { Sora, DM_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme_provider"
 import { ClientLayout } from "@/components/client_layout"
 import "./globals.css"
 
-const montserrat = Montserrat({
+const sora = Sora({
   subsets: ["latin"],
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
-  variable: "--font-montserrat",
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800"],
+  variable: "--font-sora",
 })
+
+const dmMono = DM_Mono({
+  subsets: ["latin"],
+  weight: ["300", "400", "500"],
+  variable: "--font-dm-mono",
+})
+
+
 
 export const viewport: Viewport = {
   themeColor: [
@@ -36,7 +44,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${montserrat.className} antialiased`}>
+      <body className={`${sora.variable} ${dmMono.variable} ${sora.className} antialiased`}>
+
+
         <ThemeProvider>
           <ClientLayout>{children}</ClientLayout>
           <Analytics />

@@ -20,9 +20,9 @@ interface LanguageContextProps {
 }
 
 export const LanguageContext = createContext<LanguageContextProps>({
-    language: "ja-JP",
+    language: "en-US",
     setLanguage: () => { },
-    dictionary: i18n["ja-JP"],
+    dictionary: i18n["en-US"],
     isTranslating: false,
     resetTrigger: 0,
     triggerReset: () => { },
@@ -36,7 +36,7 @@ export const LanguageContext = createContext<LanguageContextProps>({
 });
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
-    const [language, setLanguage] = useState<Language>("ja-JP");
+    const [language, setLanguage] = useState<Language>("en-US");
     const [resetTrigger, setResetTrigger] = useState(0);
     const [isAutoDetectEnabled, setIsAutoDetectEnabled] = useState(true);
     const [dynamicI18n, setDynamicI18n] = useState<any>(null);

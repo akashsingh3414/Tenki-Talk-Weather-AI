@@ -12,11 +12,11 @@ export function HeroSection({ logo }: HeroSectionProps) {
     const { dictionary } = useContext(LanguageContext)
     const localHero = dictionary.home.hero
     return (
-        <div className="h-full flex flex-col items-center justify-start py-12 lg:py-18">
-            <div className="w-full max-w-5xl space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="flex flex-col items-center justify-start py-8 lg:py-12">
+            <div className="w-full max-w-5xl space-y-6">
                 <div className="text-center gap-4 flex items-center justify-center">
                     <div className="flex justify-center mb-4">
-                        <div className="relative w-20 h-20 lg:w-28 lg:h-28 rounded-2xl overflow-hidden shadow-xl ring-4 ring-slate-100 dark:ring-slate-900 transition-transform hover:scale-105 duration-300">
+                        <div className="relative w-20 h-20 lg:w-28 lg:h-28 rounded-2xl overflow-hidden ring-4 ring-slate-100 dark:ring-slate-900 transition-transform hover:scale-105 duration-300">
                             <Image
                                 src={logo}
                                 alt="Tenki Talk Logo"
@@ -39,7 +39,7 @@ export function HeroSection({ logo }: HeroSectionProps) {
 
                 <div className="max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-3 pt-4">
                     {localHero.details.map((detail: string, i: number) => (
-                        <div key={i} className="flex gap-3 text-lg text-slate-700 dark:text-slate-300 leading-relaxed animate-in fade-in slide-in-from-bottom-2 duration-700 delay-150 items-start">
+                        <div key={i} className="flex gap-3 text-lg text-slate-700 dark:text-slate-300 leading-relaxed items-start">
                             <span className="flex-none font-bold text-blue-600 dark:text-blue-400 text-xl">
                                 {i + 1}
                             </span>
