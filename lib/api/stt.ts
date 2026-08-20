@@ -1,9 +1,20 @@
-const STT_MODELS: Record<string, string> = {
-    "openai/whisper-large-v3": "Whisper Large V3 (Multilingual)"
-}
+const getSttModelName = (modelId: string): string => {
+    const configuredId = process.env.NEXT_PUBLIC_STT_MODEL_ID || "openai/whisper-large-v3";
+    const configuredName = process.env.NEXT_PUBLIC_STT_MODEL_NAME || "Whisper Large V3 (Multilingual)";
+    
+    if (modelId === configuredId) {
+        return configuredName;
+    }
+    
+    const STT_MODELS: Record<string, string> = {
+        "openai/whisper-large-v3": "Whisper Large V3 (Multilingual)"
+    };
+    
+    return STT_MODELS[modelId] || "Unknown Model";
+};
 
 export async function transcribeAudio(audio: Blob, modelId: string): Promise<string> {
-    const modelName = STT_MODELS[modelId] || "Unknown Model"
+    const modelName = getSttModelName(modelId)
     console.log(`[STT Client] Transcribing audio using: ${modelId} (${modelName})`)
 
     const apiKey = process.env.HUGGINGFACE_API_KEY

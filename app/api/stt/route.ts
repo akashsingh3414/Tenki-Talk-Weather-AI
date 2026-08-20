@@ -1,8 +1,19 @@
 import { type NextRequest, NextResponse } from "next/server"
 
-const STT_MODELS: Record<string, string> = {
-    "openai/whisper-large-v3": "Whisper Large V3 (Multilingual)"
-}
+const getSttModelName = (modelId: string): string => {
+    const configuredId = process.env.NEXT_PUBLIC_STT_MODEL_ID || "openai/whisper-large-v3";
+    const configuredName = process.env.NEXT_PUBLIC_STT_MODEL_NAME || "Whisper Large V3 (Multilingual)";
+    
+    if (modelId === configuredId) {
+        return configuredName;
+    }
+    
+    const STT_MODELS: Record<string, string> = {
+        "openai/whisper-large-v3": "Whisper Large V3 (Multilingual)"
+    };
+    
+    return STT_MODELS[modelId] || "Unknown Model";
+};
 
 export async function POST(req: NextRequest) {
     try {
@@ -14,7 +25,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Audio and modelId are required" }, { status: 400 })
         }
 
-        const modelName = STT_MODELS[modelId] || "Unknown Model"
+        const modelName = getSttModelName(modelId)
         console.log(`[STT Proxy] Transcribing audio using: ${modelId} (${modelName})`)
 
         const apiKey = process.env.HUGGINGFACE_API_KEY
