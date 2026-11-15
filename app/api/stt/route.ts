@@ -1,73 +1,39 @@
 import { type NextRequest, NextResponse } from "next/server"
-
-const getSttModelName = (modelId: string): string => {
-    const configuredId = process.env.NEXT_PUBLIC_STT_MODEL_ID || "openai/whisper-large-v3";
-    const configuredName = process.env.NEXT_PUBLIC_STT_MODEL_NAME || "Whisper Large V3 (Multilingual)";
-    
-    if (modelId === configuredId) {
-        return configuredName;
-    }
-    
-    const STT_MODELS: Record<string, string> = {
-        "openai/whisper-large-v3": "Whisper Large V3 (Multilingual)"
-    };
-    
-    return STT_MODELS[modelId] || "Unknown Model";
-};
+import { experimental_transcribe as transcribe } from "ai"
+import { googleProvider } from "@/src/ai/models"
 
 export async function POST(req: NextRequest) {
     try {
         const formData = await req.formData()
-        const audio = formData.get("audio") as Blob
-        const modelId = formData.get("modelId") as string
+        const audio = formData.get("audio")
+        const language = formData.get("language")
 
-        if (!audio || !modelId) {
-            return NextResponse.json({ error: "Audio and modelId are required" }, { status: 400 })
+        if (!(audio instanceof Blob) || (typeof language !== "string" && language !== null)) {
+            return NextResponse.json({ error: "A valid audio file is required" }, { status: 400 })
         }
 
-        const modelName = getSttModelName(modelId)
-        console.log(`[STT Proxy] Transcribing audio using: ${modelId} (${modelName})`)
-
-        const apiKey = process.env.HUGGINGFACE_API_KEY
+        const apiKey = process.env.GOOGLE_API_KEY ?? process.env.GOOGLE_GENERATIVE_AI_API_KEY
         if (!apiKey) {
-            return NextResponse.json({ error: "HuggingFace API key is not configured" }, { status: 500 })
+            return NextResponse.json({ error: "Google AI API key is not configured" }, { status: 500 })
         }
 
-        const hfUrl = `https://router.huggingface.co/hf-inference/models/${modelId}`
+        const languageCode = typeof language === "string"
+            ? language.split("-")[0].toLowerCase()
+            : undefined
+        const providerOptions = languageCode && /^[a-z]{2}$/.test(languageCode)
+            ? { google: { languageCodes: [languageCode] } }
+            : undefined
 
-        console.log(`[STT Proxy] Sending request to: ${hfUrl}`)
-
-        const response = await fetch(hfUrl, {
-            method: "POST",
-            headers: {
-                Authorization: `Bearer ${apiKey}`,
-                "Content-Type": "audio/webm",
-            },
-            body: audio,
-        }).catch(err => {
-            console.error(`[STT Proxy] Network error reaching HF Router:`, err.message)
-            throw new Error(`Cloud connection failed: ${err.message}`)
+        const result = await transcribe({
+            model: googleProvider.transcription(process.env.GOOGLE_STT_MODEL_ID || "gemini-3.5-transcribe"),
+            audio: new Uint8Array(await audio.arrayBuffer()),
+            providerOptions,
         })
 
-        if (!response.ok) {
-            let errorMsg = `Inference Failed (${response.status})`
-            try {
-                const errorData = await response.json()
-                errorMsg = errorData.error?.message || errorData.error || (typeof errorData === 'string' ? errorData : JSON.stringify(errorData))
-            } catch (_e) {
-                errorMsg = response.statusText
-            }
-            throw new Error(errorMsg)
-        }
-
-        const data = await response.json()
-        const resultText = data.text || ""
-        console.log(`[STT Proxy] Success: "${resultText.substring(0, 30)}..."`)
-
-        return NextResponse.json({ text: resultText, isFinal: true })
+        return NextResponse.json({ text: result.text, isFinal: true })
     } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : "Failed to transcribe audio via Cloud."
-        console.error("[STT Proxy] Final Error:", message)
+        const message = error instanceof Error ? error.message : "Failed to transcribe audio via Gemini."
+        console.error("[STT Proxy] Gemini error:", message)
         return NextResponse.json(
             { error: message },
             { status: 500 }

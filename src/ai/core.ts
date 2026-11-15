@@ -3,7 +3,7 @@ import { AI_MODELS } from "./models"
 import { extractJSON, FALLBACK_PLAN } from "./parser"
 
 export interface AIServiceResponse {
-    object: any;
+    object: unknown;
     provider: string;
 }
 
@@ -13,12 +13,12 @@ export class AIService {
             const { text } = await generateText({ model: AI_MODELS.PRIMARY.model, messages, temperature: 0.7 });
             const object = extractJSON(text);
             if (object) {
-                console.log(`[AIService] ✓ Groq responded with valid JSON`);
+                console.log(`[AIService] ✓ Gemini responded with valid JSON`);
                 return { object, provider: AI_MODELS.PRIMARY.name };
             }
-            throw new Error("Groq response could not be parsed as JSON");
-        } catch (groqError) {
-            console.warn("[AIService] Groq failed:", (groqError as Error).message);
+            throw new Error("Gemini response could not be parsed as JSON");
+        } catch (geminiError) {
+            console.warn("[AIService] Gemini failed:", (geminiError as Error).message);
         }
 
         try {
@@ -32,11 +32,12 @@ export class AIService {
             });
             const object = extractJSON(text);
             if (object) {
-                console.log(`[AIService] ✓ Hugging Face responded with valid JSON`);
+                console.log(`[AIService] ✓ Groq responded with valid JSON`);
                 return { object, provider: AI_MODELS.FALLBACK.name };
             }
-        } catch (hfError) {
-            console.error("[AIService] Hugging Face also failed:", (hfError as Error).message);
+            throw new Error("Groq response could not be parsed as JSON");
+        } catch (groqError) {
+            console.error("[AIService] Groq failed:", (groqError as Error).message);
         }
 
         console.error("[AIService] All providers failed. Returning fallback.");

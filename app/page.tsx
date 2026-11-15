@@ -2,23 +2,23 @@
 
 import { useState, useRef, useEffect, useCallback, useContext } from "react"
 import { ChevronDown, ChevronUp, Loader2 } from "lucide-react"
-import { type Language } from "@/lib/i18n"
+import { type Language } from "@/src/i18n"
 import { useTranscriber } from "./hooks/useTranscriber"
 import { WeatherDisplay } from "@/components/weather_display"
 import { ChatInput } from "@/components/chat_input"
 import { Button } from "@/components/ui/button"
 import { FamousPlaces } from "@/components/famous_places"
 import { useWeather } from "./hooks/useWeather"
-import { LanguageContext } from "@/lib/language_context"
+import { LanguageContext } from "@/src/language_context"
 import { HeroSection } from "@/components/hero_section"
 import { ChatDisplay } from "@/components/chat_display"
 import { WeatherSidebar } from "@/components/weather_sidebar"
 import { LocationSelector } from "@/components/location_selector"
 import { LandingView } from "@/components/landing_view"
 import logo from "@/app/icon.png"
-import { Message } from "@/lib/types"
+import { Message } from "@/src/types"
 import { useLanguageDetection } from "./hooks/useLanguageDetection"
-import { useAuth } from "@/lib/auth_context"
+import { useAuth } from "@/src/auth_context"
 
 export default function Home() {
   const { language, resetTrigger, dictionary } = useContext(LanguageContext)

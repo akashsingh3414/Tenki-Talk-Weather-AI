@@ -1,6 +1,6 @@
 "use client"
 
-import { useAuth } from "@/lib/auth_context"
+import { useAuth } from "@/src/auth_context"
 import { Button } from "@/components/ui/button"
 import { LogIn, LogOut, User as UserIcon } from "lucide-react"
 import Image from "next/image"

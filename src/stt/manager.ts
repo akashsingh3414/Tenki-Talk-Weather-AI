@@ -1,14 +1,14 @@
 import { BrowserSTTProvider } from "./providers/browser.provider";
-import { HuggingFaceSTTProvider } from "./providers/huggingface.provider";
+import { GoogleSTTProvider } from "./providers/google.provider";
 import { STTOptions, STTResult } from "./types";
 
 export class STTManager {
     private browserProvider: BrowserSTTProvider;
-    private cloudProvider: HuggingFaceSTTProvider;
+    private cloudProvider: GoogleSTTProvider;
 
     constructor() {
         this.browserProvider = new BrowserSTTProvider();
-        this.cloudProvider = new HuggingFaceSTTProvider();
+        this.cloudProvider = new GoogleSTTProvider();
     }
 
     private getLanguageProvider() {
@@ -22,13 +22,13 @@ export class STTManager {
             } catch (e) {
                 console.warn("Browser STT failed to start:", e);
                 if (options.onProgress) {
-                    options.onProgress({ status: 'processing', message: 'Browser STT failed, using Cloud...' });
+                    options.onProgress({ status: 'processing', message: 'Browser STT failed, using Gemini...' });
                 }
             }
         } else {
-            console.log("Browser STT not supported, will use cloud fallback on stop.");
+            console.log("Browser STT not supported, will use Gemini on stop.");
             if (options.onProgress) {
-                options.onProgress({ status: 'processing', message: 'Browser STT not supported, using Cloud...' });
+                options.onProgress({ status: 'processing', message: 'Browser STT not supported, using Gemini...' });
             }
         }
     }
@@ -47,7 +47,7 @@ export class STTManager {
         try {
             return await provider.transcribe(audio, options);
         } catch (e) {
-            console.error("Cloud STT Fallback failed:", e);
+            console.error("Gemini STT fallback failed:", e);
             return null;
         }
     }

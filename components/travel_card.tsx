@@ -1,12 +1,12 @@
 "use client"
 
 import React, { useState, useContext } from "react"
-import { LanguageContext } from "@/lib/language_context"
+import { LanguageContext } from "@/src/language_context"
 import { Card } from "@/components/ui/card"
 import { ChevronDown, ChevronUp, MapPin, Sparkles, Info, Globe } from "lucide-react"
-import { type Language } from "@/lib/i18n"
+import { type Language } from "@/src/i18n"
 
-import { type TravelPlace } from "@/lib/types"
+import { type TravelPlace } from "@/src/types"
 
 interface TravelCardProps {
     place: TravelPlace

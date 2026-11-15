@@ -3,8 +3,8 @@
 import { useRef, useState, useEffect } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { TravelCard } from "@/components/travel_card"
-import { type Language } from "@/lib/i18n"
-import { TravelPlace } from "@/lib/types"
+import { type Language } from "@/src/i18n"
+import { TravelPlace } from "@/src/types"
 
 interface TravelDayRowProps {
     day: string

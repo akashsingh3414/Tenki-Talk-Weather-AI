@@ -1,8 +1,8 @@
 "use client"
 
 import { WeatherDisplay } from "./weather_display"
-import { Language } from "@/lib/i18n"
-import { WeatherData } from "@/lib/types"
+import { Language } from "@/src/i18n"
+import { WeatherData } from "@/src/types"
 
 interface WeatherSidebarProps {
     weatherData: WeatherData | null

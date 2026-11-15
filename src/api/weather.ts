@@ -1,6 +1,7 @@
-import { WeatherData } from "../types";
+import { AirQuality, WeatherData } from "../types";
 
 interface ForecastItem {
+    dt: number;
     dt_txt: string;
     main: {
         temp: number;
@@ -19,6 +20,21 @@ interface ForecastItem {
         "3h"?: number;
     };
     pop: number;
+}
+
+interface AirPollutionItem {
+    dt?: number;
+    main?: {
+        aqi?: number;
+    };
+    components?: {
+        pm2_5?: number;
+        pm10?: number;
+    };
+}
+
+interface AirPollutionResponse {
+    list?: AirPollutionItem[];
 }
 
 const weatherCache = new Map<string, { data: WeatherData; timestamp: number }>();
@@ -131,10 +147,20 @@ async function fetchWithRetry(url: string, options: RequestInit = {}, retries = 
     }
 }
 
+async function fetchAirPollution(url: string): Promise<AirPollutionItem[]> {
+    const response = await fetchWithRetry(url);
+    if (!response.ok) {
+        throw new Error(`Air pollution API error: ${response.statusText}`);
+    }
+
+    const data = await response.json() as AirPollutionResponse;
+    return data.list || [];
+}
+
 export async function fetchWeatherData(city: string, language: string = "en-US"): Promise<WeatherData | null> {
     const normalizedCity = city.toLowerCase().trim();
     const langCode = mapLanguageCode(language);
-    const cacheKey = `${normalizedCity}_${langCode}_v2`;
+    const cacheKey = `${normalizedCity}_${langCode}_v3`;
 
     const cached = weatherCache.get(cacheKey);
 
@@ -166,6 +192,55 @@ export async function fetchWeatherData(city: string, language: string = "en-US")
         const forecastData = await forecastRes.json();
 
         const next24HoursForecast = forecastData.list || [];
+        let currentAirPollution: AirPollutionItem | undefined;
+        let forecastAirPollution: AirPollutionItem[] = [];
+
+        const latitude = weatherData.coord?.lat;
+        const longitude = weatherData.coord?.lon;
+        if (typeof latitude === "number" && typeof longitude === "number") {
+            const airPollutionUrl = (endpoint: string) =>
+                `https://api.openweathermap.org/data/2.5/air_pollution${endpoint}?lat=${latitude}&lon=${longitude}&appid=${apiKey}`;
+            const [currentAirResult, forecastAirResult] = await Promise.allSettled([
+                fetchAirPollution(airPollutionUrl("")),
+                fetchAirPollution(airPollutionUrl("/forecast")),
+            ]);
+
+            if (currentAirResult.status === "fulfilled") {
+                currentAirPollution = currentAirResult.value[0];
+                if (!currentAirPollution) {
+                    console.warn(`[Weather] Current AQI unavailable for ${city}: no air pollution data returned`);
+                }
+            } else {
+                console.warn(`[Weather] Current AQI unavailable for ${city}:`, currentAirResult.reason);
+            }
+
+            if (forecastAirResult.status === "fulfilled") {
+                forecastAirPollution = forecastAirResult.value;
+            } else {
+                console.warn(`[Weather] Forecast AQI unavailable for ${city}:`, forecastAirResult.reason);
+            }
+        } else {
+            console.warn(`[Weather] AQI unavailable for ${city}: coordinates missing from weather response`);
+        }
+
+        const getForecastAirQuality = (timestamp: number): AirPollutionItem | undefined => {
+            const nearest = forecastAirPollution.reduce<AirPollutionItem | undefined>((best, item) => {
+                if (typeof item.dt !== "number") return best;
+                if (!best || typeof best.dt !== "number") return item;
+                return Math.abs(item.dt - timestamp) < Math.abs(best.dt - timestamp) ? item : best;
+            }, undefined);
+
+            if (!nearest || typeof nearest.dt !== "number" || Math.abs(nearest.dt - timestamp) > 5400) {
+                return undefined;
+            }
+            return nearest;
+        };
+
+        const mapAirQuality = (item: AirPollutionItem | undefined): AirQuality | undefined => {
+            const index = item?.main?.aqi;
+            if (typeof index !== "number") return undefined;
+            return { index };
+        };
 
         const result: WeatherData = {
             current: {
@@ -187,6 +262,7 @@ export async function fetchWeatherData(city: string, language: string = "en-US")
                 grnd_level: weatherData.main?.grnd_level,
                 wind_deg: weatherData.wind?.deg,
                 dt: weatherData.dt,
+                airQuality: mapAirQuality(currentAirPollution),
             },
             forecast: next24HoursForecast.map((item: ForecastItem) => ({
                 time: item.dt_txt,
@@ -198,6 +274,7 @@ export async function fetchWeatherData(city: string, language: string = "en-US")
                 rain: item.rain?.["3h"] || 0,
                 pop: item.pop || 0,
                 pressure: item.main?.pressure,
+                airQuality: mapAirQuality(getForecastAirQuality(item.dt)),
             })),
         };
 

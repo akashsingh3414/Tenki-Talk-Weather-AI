@@ -1,8 +1,8 @@
 "use client"
 
 import { useCallback, useMemo, useState, useRef } from 'react'
-import { Transcriber, TranscriberData } from '../../lib/types'
-import { sttManager } from '../../lib/stt'
+import { Transcriber, TranscriberData } from '../../src/types'
+import { sttManager } from '../../src/stt'
 
 export function useTranscriber(): Transcriber {
   const [output, setOutput] = useState<TranscriberData | undefined>()

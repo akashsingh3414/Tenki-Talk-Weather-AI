@@ -8,7 +8,7 @@ import { UserMenu } from "@/components/user_menu"
 import { useTheme } from "@/components/theme_provider"
 import Image from "next/image"
 import { useContext } from "react"
-import { LanguageContext } from "@/lib/language_context"
+import { LanguageContext } from "@/src/language_context"
 import logo from "@/app/icon.png"
 
 export function Header() {
@@ -26,7 +26,7 @@ export function Header() {
             onClick={onHomeClick}
             className="flex items-center gap-2 cursor-pointer transition-all hover:opacity-80 active:scale-95"
           >
-            <div className="relative w-10 h-10 lg:w-12 lg:h-12 overflow-hidden rounded-xl bg-slate-100 dark:bg-slate-900 animate-float">
+            <div className="relative w-10 h-10 lg:w-12 lg:h-12 overflow-hidden rounded-xl bg-slate-100 dark:bg-slate-900 animate-float [animation-duration:1.5s]">
               <Image
                 src={logo}
                 alt="Tenki Talk Logo"
@@ -64,7 +64,7 @@ export function Header() {
               onClick={onHomeClick}
               className="flex items-center gap-2.5 cursor-pointer transition-all hover:opacity-80 active:scale-95"
             >
-              <div className="relative w-8 h-8 overflow-hidden rounded-lg bg-slate-100 dark:bg-slate-900 animate-float">
+              <div className="relative w-8 h-8 overflow-hidden rounded-lg bg-slate-100 dark:bg-slate-900 animate-float [animation-duration:1.5s]">
                 <Image
                   src={logo}
                   alt="Tenki Talk Logo"

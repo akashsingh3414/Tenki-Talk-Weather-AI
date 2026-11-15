@@ -3,8 +3,8 @@
 import { RefObject } from "react"
 import { ChatMessage } from "./chat_message"
 import Image, { StaticImageData } from "next/image"
-import { Language } from "@/lib/i18n"
-import { Message } from "@/lib/types"
+import { Language } from "@/src/i18n"
+import { Message } from "@/src/types"
 
 interface ChatDisplayProps {
     messages: Message[]

@@ -2,78 +2,62 @@
 
 > **Weather-aware AI travel planning, reimagined.**
 
-Tenki Talk is a multilingual AI travel assistant that generates real-time, context-sensitive itineraries by integrating live weather data into every recommendation. Rather than offering static suggestions, it adapts plans dynamically to temperature, humidity, visibility, and multi-day forecasts.
+Tenki Talk is a multilingual AI travel assistant that creates context-aware trip plans from current weather, forecast, and air-quality data. It helps users choose activities and clothing that suit local conditions.
 
 ---
 
 ## Features
 
-| Feature                       | Description                                                                                                                      |
-| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| **Weather-Aware Itineraries** | Every recommendation is grounded in live weather data — conditions, temperature, humidity, and visibility inform each suggestion |
-| **Multi-Day Planning**        | Intelligent itinerary pacing across 1–5 days, with activity density scaled per duration                                          |
-| **Forecast Integration**      | Per-day Morning, Afternoon, Evening, and Night weather snapshots for accurate scheduling                                         |
-| **Category Intelligence**     | Requests filtered by topic (dining, sightseeing, nightlife, clothing) — responses stay strictly within scope                     |
-| **Outfit Recommendations**    | Season- and condition-appropriate clothing suggestions tied to current weather                                                   |
-| **Multilingual Support**      | Full support for English, 日本語 (Japanese), and हिन्दी (Hindi)                                                                     |
-| **Voice Input**               | Speech-to-text via Web Speech API with OpenAI Whisper as fallback                                                                |
-| **Google Authentication**     | Secure, passwordless sign-in via Firebase Authentication                                                                         |
+| Feature                       | Description                                                                                                               |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| **Weather- and AQI-Aware Plans** | Recommendations consider temperature, humidity, wind, visibility, current AQI, and forecast AQI when available.          |
+| **Multi-Day Planning**        | Plans trips lasting 1–5 days, with activities paced across the trip.                                                      |
+| **Scrollable Forecast**       | Browse forecast cards by date; the partial next card indicates that more times are available by swiping.                 |
+| **Category Intelligence**     | Keeps requests focused on dining, sightseeing, nightlife, clothing, and other supported travel topics.                    |
+| **Outfit Recommendations**    | Suggests clothing based on current conditions and the forecast.                                                           |
+| **Multilingual Support**      | Supports English, 日本語 (Japanese), and हिन्दी (Hindi).                                                                    |
+| **Voice Input**               | Uses browser speech recognition where available, with Gemini transcription as the cloud fallback.                         |
+| **Google Authentication**     | Passwordless sign-in via Firebase Authentication.                                                                         |
 
 ---
 
 ## Tech Stack
 
-| Layer          | Technology                               |
-| -------------- | ---------------------------------------- |
-| Framework      | Next.js (App Router)                     |
-| Language       | TypeScript                               |
-| Styling        | Tailwind CSS v4, Lucide Icons            |
-| AI — Primary   | Groq                                     |
-| AI — Fallback  | Hugging Face                             |
-| Speech-to-Text | Web Speech API, OpenAI Whisper           |
-| Weather Data   | OpenWeatherMap                           |
-| Location Data  | GeoNames                                 |
-| Authentication | Firebase Authentication (Google Sign-In) |
+| Layer          | Technology                                |
+| -------------- | ----------------------------------------- |
+| Framework      | Next.js (App Router)                      |
+| Language       | TypeScript                                |
+| Styling        | Tailwind CSS v4, Lucide Icons             |
+| AI — Primary   | Google Gemini                             |
+| AI — Fallback  | Groq                                      |
+| Speech-to-Text | Browser speech recognition, Gemini        |
+| Weather and AQI| OpenWeatherMap                            |
+| Location Data  | GeoNames                                  |
+| Authentication | Firebase Authentication (Google Sign-In)  |
 
 ---
 
 ## AI Configuration
 
-Tenki Talk uses a configurable primary and fallback AI provider. The application can automatically switch to the fallback provider if the primary provider or model fails.
+Gemini generates travel plans first. If the Gemini request fails or its response cannot be parsed, the app tries Groq. For speech input, the app uses browser speech recognition when available and sends audio to Gemini transcription if browser recognition is unavailable or produces no usable transcript. Both Gemini features use the same Google AI API key.
 
-Models are **not hardcoded into the application**. Users can choose any compatible model available through their Groq or Hugging Face account by changing the model configuration in the environment variables.
-
-### Example Configuration
+The model IDs can be changed to models available to the corresponding API keys. Defaults are:
 
 ```env
-PRIMARY_MODEL_PROVIDER=groq
-PRIMARY_MODEL_ID=groq/compound-mini
-PRIMARY_MODEL_NAME=Groq (Compound Mini)
-
-FALLBACK_MODEL_PROVIDER=huggingface
-FALLBACK_MODEL_ID=openai/gpt-oss-120b
-FALLBACK_MODEL_NAME=Hugging Face (GPT-OSS-120B)
+GEMINI_MODEL_ID=gemini-3.6-flash
+GROQ_MODEL_ID=openai/gpt-oss-120b
+GOOGLE_STT_MODEL_ID=gemini-3.5-transcribe
 ```
 
-For example, the primary model can be changed to another model available on Groq:
+`GOOGLE_API_KEY` and `GROQ_API_KEY` are required for their respective services. The old `PRIMARY_MODEL_*`, `FALLBACK_MODEL_*`, and `HUGGINGFACE_API_KEY` settings are not used by the active chat or speech-transcription paths and can be removed from deployment settings.
 
-```env
-PRIMARY_MODEL_PROVIDER=groq
-PRIMARY_MODEL_ID=<your-groq-model-id>
-PRIMARY_MODEL_NAME=<your-model-name>
-```
+---
 
-Or Hugging Face can be used as the primary provider:
+## Air Quality
 
-```env
-PRIMARY_MODEL_PROVIDER=huggingface
-PRIMARY_MODEL_ID=<your-huggingface-model-id>
-PRIMARY_MODEL_NAME=<your-model-name>
-```
+The app gets current air quality and forecast air quality from OpenWeatherMap's Air Pollution API using the selected city's coordinates and the existing `OPENWEATHERMAP_API_KEY`. OpenWeather returns an AQI category from 1 to 5; the app displays that API value directly as `x/5` and does not convert it to another AQI scale.
 
-Similarly, the fallback provider and model can be changed according to the user's requirements.
-
-The selected models must be supported by the respective provider and accessible using the configured API key.
+The weather panel and forecast cards show the OpenWeather AQI value and category when available. The travel planner uses the same category alongside weather: it favors indoor activities for poor or very poor air quality, suggests that sensitive groups reduce outdoor exertion at moderate levels, and does not assume conditions are healthy when air-quality data is unavailable. If the Air Pollution API does not return data, the app keeps showing weather and marks AQI as unavailable.
 
 ---
 
@@ -83,25 +67,21 @@ Create a `.env.local` file at the project root:
 
 ```env
 OPENWEATHERMAP_API_KEY=
-
+GOOGLE_API_KEY=
 GROQ_API_KEY=
-HUGGINGFACE_API_KEY=
 
-PRIMARY_MODEL_PROVIDER=groq
-PRIMARY_MODEL_ID=groq/compound-mini
-PRIMARY_MODEL_NAME=Groq (Compound Mini)
-
-FALLBACK_MODEL_PROVIDER=huggingface
-FALLBACK_MODEL_ID=openai/gpt-oss-120b
-FALLBACK_MODEL_NAME=Hugging Face (GPT-OSS-120B)
+GEMINI_MODEL_ID=gemini-3.6-flash
+GROQ_MODEL_ID=openai/gpt-oss-120b
+GOOGLE_STT_MODEL_ID=gemini-3.5-transcribe
 
 NEXT_PUBLIC_GEONAMES_USER=
-
 NEXT_PUBLIC_FIREBASE_API_KEY=
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
 NEXT_PUBLIC_FIREBASE_PROJECT_ID=
 NEXT_PUBLIC_FIREBASE_APP_ID=
 ```
+
+The model IDs are optional; the values shown are the application defaults. `GOOGLE_API_KEY` is used for both Gemini chat and Gemini transcription. `OPENWEATHERMAP_API_KEY` is used for weather and AQI.
 
 ---
 
@@ -111,9 +91,9 @@ NEXT_PUBLIC_FIREBASE_APP_ID=
 
 Obtain API credentials for the following services:
 
+* [Google AI Studio](https://aistudio.google.com/apikey)
 * [Groq](https://console.groq.com/)
-* [Hugging Face](https://huggingface.co/settings/tokens)
-* [OpenWeatherMap](https://openweathermap.org/api)
+* [OpenWeatherMap](https://openweathermap.org/api) — current weather, forecast, and air pollution
 * [GeoNames](https://www.geonames.org/login)
 * [Firebase](https://console.firebase.google.com/) — Authentication only, no Firestore required
 

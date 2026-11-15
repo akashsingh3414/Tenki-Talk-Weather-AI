@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { AIService } from "@/lib/ai/core"
-import { PromptManager } from "@/lib/ai/prompts"
-import { buildMessages } from "@/lib/ai/request_builder"
+import { AIService } from "@/src/ai/core"
+import { PromptManager } from "@/src/ai/prompts"
+import { buildMessages } from "@/src/ai/request_builder"
 
 // ─── Route Handler ─────────────────────────────────────────────────────────────
 

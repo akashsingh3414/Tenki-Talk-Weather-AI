@@ -2,12 +2,12 @@
 
 import * as React from "react"
 import { useRef, useEffect, useContext } from "react"
-import { LanguageContext } from "@/lib/language_context"
+import { LanguageContext } from "@/src/language_context"
 import { Input } from "@/components/ui/input"
-import { cn } from "@/lib/utils"
+import { cn } from "@/src/utils"
 import { Send, Keyboard, MapPin, Mic, Loader2, Square, Clock, Plus, Minus, Sparkles, AlertTriangle } from "lucide-react"
-import { type Language } from "@/lib/i18n"
-import { Transcriber } from "@/lib/types"
+import { type Language } from "@/src/i18n"
+import { Transcriber } from "@/src/types"
 import { useLanguageDetection } from "@/app/hooks/useLanguageDetection"
 import { Tooltip } from "@/components/ui/tooltip"
 

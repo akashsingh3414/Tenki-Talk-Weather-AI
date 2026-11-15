@@ -3,8 +3,8 @@
 import { useState, useRef, useContext } from "react"
 import { Button } from "@/components/ui/button"
 import { ChevronDown, LanguagesIcon, Loader2 } from "lucide-react"
-import { LanguageContext } from "@/lib/language_context"
-import { type Language as I18nLanguage } from "@/lib/i18n"
+import { LanguageContext } from "@/src/language_context"
+import { type Language as I18nLanguage } from "@/src/i18n"
 
 type LocalLanguage = I18nLanguage
 

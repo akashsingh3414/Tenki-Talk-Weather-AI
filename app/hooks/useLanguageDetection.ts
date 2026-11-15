@@ -1,8 +1,8 @@
 "use client"
 
 import { useCallback, useRef } from "react"
-import { BrowserAI } from "@/lib/translation_utils"
-import { type Language } from "@/lib/i18n"
+import { BrowserAI } from "@/src/translation_utils"
+import { type Language } from "@/src/i18n"
 
 export function useLanguageDetection() {
     const isDetecting = useRef(false)

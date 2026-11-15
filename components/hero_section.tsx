@@ -1,6 +1,6 @@
 "use client"
 
-import { LanguageContext } from "@/lib/language_context"
+import { LanguageContext } from "@/src/language_context"
 import { useContext } from "react"
 import Image, { StaticImageData } from "next/image"
 

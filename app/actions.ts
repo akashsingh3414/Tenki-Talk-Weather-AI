@@ -1,7 +1,7 @@
 "use server"
 
-import { getGeoNamesCountries, getGeoNamesCities } from "@/lib/api/geonames"
-import { fetchWeatherData } from "@/lib/api/weather"
+import { getGeoNamesCountries, getGeoNamesCities } from "@/src/api/geonames"
+import { fetchWeatherData } from "@/src/api/weather"
 
 export async function getCountries() {
     return getGeoNamesCountries()

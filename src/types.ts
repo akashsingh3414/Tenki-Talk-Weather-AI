@@ -36,7 +36,7 @@ export interface TravelJsonResponse {
     closing?: string
 }
 
-import { Language } from "@/lib/i18n"
+import { Language } from "@/src/i18n"
 
 export interface Message {
     id: string
@@ -57,6 +57,11 @@ export interface Forecast {
     rain: number;
     pop: number;
     pressure: number;
+    airQuality?: AirQuality;
+}
+
+export interface AirQuality {
+    index: number;
 }
 
 export interface WeatherData {
@@ -83,6 +88,7 @@ export interface CurrentWeather {
     grnd_level?: number;
     wind_deg?: number;
     dt?: number;
+    airQuality?: AirQuality;
 }
 
 export type IntentType =

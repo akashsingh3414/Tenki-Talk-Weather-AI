@@ -1,7 +1,7 @@
 "use client"
 
-import { type Language } from "@/lib/i18n"
-import { LanguageContext } from "@/lib/language_context"
+import { type Language } from "@/src/i18n"
+import { LanguageContext } from "@/src/language_context"
 import React, { useState, useEffect, useRef, useContext } from "react"
 import { MapPin, ChevronLeft, ChevronRight } from "lucide-react"
 import { WeatherConditionIcon } from "./weather_display"

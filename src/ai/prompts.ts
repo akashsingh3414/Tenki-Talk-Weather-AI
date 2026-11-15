@@ -1,6 +1,15 @@
-import { WeatherData, Forecast } from "@/lib/types";
+import { AirQuality, WeatherData, Forecast } from "@/src/types";
 
 export class PromptManager {
+    private static getAQILevel(index: number): string {
+        return ["Good", "Fair", "Moderate", "Poor", "Very poor"][Math.max(0, Math.min(index - 1, 4))];
+    }
+
+    private static formatAirQuality(airQuality?: AirQuality): string {
+        if (!airQuality) return "Unavailable";
+        return `OpenWeather AQI: ${airQuality.index}/5 (${this.getAQILevel(airQuality.index)})`;
+    }
+
     private static formatTime(timestamp: number | undefined, language: string): string {
         if (!timestamp) return "N/A";
         const locale = language === "ja-JP" ? "ja-JP" : language === "hi-IN" ? "hi-IN" : "en-US";
@@ -33,7 +42,7 @@ export class PromptManager {
                 { label: labels.night, item: find(21) || items[items.length - 1] },
             ]
                 .filter((p, i, self) => p.item && self.findIndex(t => t.item?.time === p.item?.time) === i)
-                .map(p => `${p.label}: ${Math.round(p.item!.temp)}°C (${p.item!.description})`)
+                .map(p => `${p.label}: ${Math.round(p.item!.temp)}°C (${p.item!.description})${p.item!.airQuality ? `; ${this.formatAirQuality(p.item!.airQuality)}` : ""}`)
                 .join(" | ");
             return `- ${date}: ${points}`;
         }).join("\n");
@@ -65,6 +74,8 @@ export class PromptManager {
             : current.visibility >= 10000 ? "Excellent"
                 : current.visibility >= 5000 ? "Good"
                     : current.visibility >= 2000 ? "Moderate" : "Poor";
+        const airQuality = current?.airQuality;
+        const airQualitySummary = this.formatAirQuality(airQuality);
 
         const sunrise = this.formatTime(current?.sunrise, language);
         const sunset = this.formatTime(current?.sunset, language);
@@ -92,6 +103,7 @@ WEATHER (every place must reference at least one of these):
 - Conditions: ${current?.description}
 - Humidity: ${current?.humidity}% | Wind: ${current?.wind_speed} m/s | Clouds: ${current?.clouds}%
 - Visibility: ${visibilityKm}km (${visibilityLevel})
+- Air quality data: ${airQualitySummary}
 - Sunrise: ${sunrise} | Sunset: ${sunset}
 - Pressure: ${current?.pressure} hPa
 ${forecast}
@@ -107,6 +119,10 @@ WEATHER PRIORITIES:
 - Rain/Monsoon: Covered venues, street food under shelter, rain gear
 - Fog/Visibility <2km: Indoor attractions, enclosed monuments
 - Humidity >70% + Heat: AC venues, water activities, breathable fabrics
+- AQI 4-5 (Poor/Very poor): Avoid prolonged or strenuous outdoor activities; prefer indoor venues.
+- AQI 3 (Moderate): Recommend reduced outdoor exertion for sensitive groups.
+- AQI 1-2 (Good/Fair): Outdoor activities are generally suitable when other weather conditions allow.
+- AQI unavailable: Do not assume air quality is good or make specific pollution claims.
 - Clear + Good visibility: Outdoor sightseeing, open-air markets, rooftop dining near ${sunset}
 
 ITINERARY SCALE:

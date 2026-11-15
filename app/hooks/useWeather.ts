@@ -1,8 +1,8 @@
 "use client"
 
 import { useState, useCallback } from 'react'
-import { WeatherData } from '@/lib/types'
-import { Language } from '@/lib/i18n'
+import { WeatherData } from '@/src/types'
+import { Language } from '@/src/i18n'
 import { getWeather } from '@/app/actions'
 
 export function useWeather(language: Language) {

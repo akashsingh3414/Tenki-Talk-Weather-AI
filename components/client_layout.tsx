@@ -1,7 +1,7 @@
 "use client"
 
-import { LanguageProvider } from "@/lib/language_context"
-import { AuthProvider } from "@/lib/auth_context"
+import { LanguageProvider } from "@/src/language_context"
+import { AuthProvider } from "@/src/auth_context"
 import { Header } from "@/components/header"
 
 function ClientLayoutContent({ children }: { children: React.ReactNode }) {

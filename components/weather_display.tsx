@@ -1,16 +1,17 @@
 "use client"
 
 import * as React from "react"
-import { i18n, type Language } from "@/lib/i18n"
-import { LanguageContext } from "@/lib/language_context"
+import { i18n, type Language } from "@/src/i18n"
+import { LanguageContext } from "@/src/language_context"
 import { useContext } from "react"
-import { getTempColor, TempColorStyle } from "@/lib/weather_colors"
+import { getTempColor, TempColorStyle } from "@/src/weather_colors"
 import {
   Droplets,
   Wind,
   Gauge,
   Cloud,
   Eye,
+  Activity,
   Sunrise,
   Sunset,
   Thermometer,
@@ -22,7 +23,7 @@ import {
   CloudDrizzle
 } from "lucide-react"
 
-import { WeatherData, Forecast, CurrentWeather } from "@/lib/types"
+import { WeatherData, Forecast, CurrentWeather } from "@/src/types"
 
 type WeatherDisplayLabels = typeof i18n["en-US"]["weatherDisplay"]
 
@@ -203,6 +204,15 @@ function CurrentWeatherCard({
             style={currentStyle}
           />
         )}
+        <Stat
+          icon={<Activity size={14} />}
+          label={labels.aqi}
+          value={current.airQuality ? `${current.airQuality.index}/5` : labels.aqiUnavailable}
+          subtitle={current.airQuality
+            ? `${labels.aqiCategory}: ${getAQILabel(current.airQuality.index, labels)}`
+            : labels.aqiUnavailable}
+          style={currentStyle}
+        />
       </div>
     </div>
   )
@@ -274,17 +284,14 @@ function ForecastSection({
         ))}
       </div>
 
-      <div
-        className="flex flex-row overflow-x-auto snap-x snap-mandatory gap-2 pb-1 no-scrollbar"
-      >
-        {Array.from({ length: Math.ceil(displayedForecast.length / 2) }).map((_, groupIdx) => (
+      <div className="flex flex-1 min-h-0 flex-row overflow-x-auto snap-x snap-mandatory gap-2 pb-1 no-scrollbar">
+        {displayedForecast.map((item) => (
           <div
-            key={groupIdx}
-            className="grid grid-cols-2 gap-2 flex-none w-full snap-start"
+            key={item.time}
+            className="flex-none snap-start"
+            style={{ flexBasis: "calc(44.444% - 7.111px)" }}
           >
-            {displayedForecast.slice(groupIdx * 2, groupIdx * 2 + 2).map((item, idx) => (
-              <ForecastCard key={idx} item={item} language={language} labels={labels} isCompact={true} />
-            ))}
+            <ForecastCard item={item} language={language} labels={labels} isCompact={true} />
           </div>
         ))}
       </div>
@@ -362,9 +369,20 @@ function ForecastCard({ item, language, labels, isCompact = false }: { item: For
         {item.pop > 0 && (
           <StatSmall icon={<CloudRain size={10} />} label={labels.pop} value={`${Math.round(item.pop * 100)}%`} />
         )}
+        {item.airQuality && (
+          <StatSmall icon={<Activity size={10} />} label={labels.aqi} value={`${item.airQuality.index}/5`} />
+        )}
       </div>
     </div>
   )
+}
+
+function getAQILabel(index: number, labels: WeatherDisplayLabels): string {
+  if (index <= 1) return labels.aqiGood
+  if (index === 2) return labels.aqiFair
+  if (index === 3) return labels.aqiModerate
+  if (index === 4) return labels.aqiPoor
+  return labels.aqiVeryPoor
 }
 
 function StatSmall({ icon, label, value }: { icon: React.ReactNode, label: string, value: string }) {

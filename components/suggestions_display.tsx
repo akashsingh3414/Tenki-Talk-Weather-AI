@@ -2,8 +2,8 @@
 
 import { Card } from "@/components/ui/card"
 
-import { type Language } from "@/lib/i18n"
-import { LanguageContext } from "@/lib/language_context"
+import { type Language } from "@/src/i18n"
+import { LanguageContext } from "@/src/language_context"
 import { useContext } from "react"
 
 interface SuggestionsDisplayProps {

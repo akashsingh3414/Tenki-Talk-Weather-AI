@@ -1,17 +1,17 @@
 "use client"
 
 import { User, Loader2 } from "lucide-react"
-import { type Language } from "@/lib/i18n"
+import { type Language } from "@/src/i18n"
 import ReactMarkdown from "react-markdown"
 import { TravelCard } from "@/components/travel_card"
 import { TravelDayRow } from "@/components/travel_day_row"
 import Image from "next/image"
 import logo from "@/app/icon.png"
-import { Message } from "@/lib/types"
+import { Message } from "@/src/types"
 
-import { LanguageContext } from "@/lib/language_context"
+import { LanguageContext } from "@/src/language_context"
 import { useContext, useState, useEffect } from "react"
-import { BrowserAI } from "@/lib/translation_utils"
+import { BrowserAI } from "@/src/translation_utils"
 
 interface ChatMessageProps {
   message: Message
